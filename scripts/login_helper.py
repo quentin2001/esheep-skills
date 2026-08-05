@@ -71,8 +71,24 @@ def login_platform(platform: str):
                     pass
 
             input(f"[>] Press ENTER in this console after you have successfully logged into {platform}...")
+            
+            # Verify and settle session by navigating to self profile
+            profile_urls = {
+                "xiaohongshu": "https://www.xiaohongshu.com/user/profile/self",
+                "douyin": "https://www.douyin.com/user/self",
+                "bilibili": "https://space.bilibili.com",
+                "zhihu": "https://www.zhihu.com/people/self",
+                "x": "https://x.com/home"
+            }
+            if platform in profile_urls:
+                try:
+                    page.goto(profile_urls[platform])
+                    page.wait_for_timeout(3000)
+                except Exception:
+                    pass
+
             context.storage_state(path=save_path)
-            print(f"[✓] Saved session state to {save_path}")
+            print(f"[OK] Saved verified session state for {platform} to {save_path}")
         finally:
             browser.close()
 

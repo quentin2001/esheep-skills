@@ -43,6 +43,14 @@ If the user has a large volume of likes and bookmarks, apply the following filte
 3. **Quantity Limit Control**:
    - Limit the fetch or processing to the top N newest items (e.g., `--limit 5` for latest 5 items per platform).
 
+## Strict Anti-Hallucination & Truthfulness Rule
+
+> **CRITICAL**: Never generate synthetic/mock post items, fake titles, or dead dummy URLs (such as `xiaohongshu.com/explore/65ab1234...` or `douyin.com/video/731234...`) when `data/raw_favs.json` returns 0 items. 
+> 
+> If no real items are found for a requested platform or filter:
+> 1. Report the exact status truthfully: "未能在 [<Platform>] 的真实记录中抓取到符合条件的内容/登录会话失效已重定向"。
+> 2. Direct the user to re-verify their login session via `login_helper.py` or check if their account has saved/liked posts matching the criteria.
+
 ## Workflow Details
 
 Read and inspect `data/raw_favs.json` to find unprocessed or newly added items. Each item contains:
