@@ -16,9 +16,9 @@ This skill guides the agent through fetching user favorites/likes across social 
 The user will interact with you **purely through chat messages**. You must automatically execute the required background commands using `run_command` without asking the user to use the command line.
 
 ### Scenario A: Initial Login or Changing Accounts
-When the user asks to log in or switch accounts for specific platforms (e.g., "帮我登录小红书", "换一个B站账号"):
-1. Execute: `python scripts/login_helper.py --platform <platform>` (or `--platform all` if they want to log into all).
-2. Prompt the user in chat: "我已经调起了 [<platform>] 的登录窗口，请在弹出的浏览器中登录您的账号。登录完成后请回复我‘登录完成了’。"
+When the user wants to set up or change accounts for specific platforms (e.g., "帮我绑定小红书 Cookie", "换一个B站账号"):
+- **Option 1 (Direct Cookie Paste in Chat)**: Ask the user to paste their browser cookie string directly in chat. Once provided, run `python scripts/set_cookie.py <platform> "<cookie_string>"`.
+- **Option 2 (Automatic Browser Launch)**: Run `python scripts/login_helper.py --platform <platform>` to pop up Chromium. Prompt the user: "已为你尝试打开 [<platform>] 的登录窗口，完成后请告诉我‘登录完成了’。"
 
 ### Scenario B: Selective Platform Scanning
 When the user asks to fetch likes/favorites from specific platforms (e.g., "只抓取小红书和抖音", "查看B站近期的收藏"):
