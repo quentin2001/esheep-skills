@@ -229,7 +229,7 @@ def extract_items_from_html(platform: str, html_content: str, action_type: str =
 
     return items
 
-def fetch_platform(platform: str, headless: bool = True) -> list:
+def fetch_platform(platform: str, headless: bool = True, limit: int = 10) -> list:
     session_file = get_session_path(platform)
     if not os.path.exists(session_file):
         print(f"[!] Session state for {platform} not found. Please run login_helper.py --platform {platform} first.")
@@ -282,7 +282,7 @@ def fetch_platform(platform: str, headless: bool = True) -> list:
                         pass
 
                     html_content = page.content()
-                    extracted = extract_items_from_html(platform, html_content, action_type=action_type)
+                    extracted = extract_items_from_html(platform, html_content, action_type=action_type, limit=limit)
                     items.extend(extracted)
                 except Exception as e:
                     print(f"[!] Error fetching {platform} target {url}: {e}")
@@ -295,6 +295,7 @@ def main():
     parser = argparse.ArgumentParser(description="Fetch social media favorites & likes")
     parser.add_argument("--platform", choices=list(PLATFORMS.keys()) + ["all"], default="all")
     parser.add_argument("--headless", action="store_true", default=True)
+    parser.add_argument("--limit", type=int, default=10, help="Max items to fetch per target page")
     args = parser.parse_args()
 
     all_fetched = []
@@ -302,7 +303,7 @@ def main():
 
     for p in platforms:
         print(f"[*] Fetching from {p}...")
-        fetched = fetch_platform(p, headless=args.headless)
+        fetched = fetch_platform(p, headless=args.headless, limit=args.limit)
         all_fetched.extend(fetched)
 
     added = add_new_favs(all_fetched, RAW_FAVS_FILE)

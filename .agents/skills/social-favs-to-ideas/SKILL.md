@@ -28,9 +28,20 @@ When the user asks to fetch likes/favorites from specific platforms (e.g., "只�
 
 ### Scenario C: Full Automatic Topic Generation
 When the user asks to generate topics (e.g., "扫描我最近喜欢的内容生成选题"):
-1. Execute `python scripts/fetcher.py --platform all` (or specific platforms if specified).
+1. Execute `python scripts/fetcher.py --platform all` (or specific platforms if specified, with `--limit <number>` if count limit requested).
 2. If any platform session is missing, inform the user and automatically trigger Scenario A for that platform.
 3. Process `data/raw_favs.json`, perform topic reverse-engineering, and update `data/content_ideas_database.md`.
+
+## Pre-Filtering Guidelines (Handling Large Amounts of Likes/Favs)
+
+If the user has a large volume of likes and bookmarks, apply the following filters before performing full topic reverse-engineering:
+
+1. **Domain / Keyword Filtering**:
+   - If the user specifies target niches (e.g., "只看 AI、自媒体、效率工具相关的内容"), evaluate the title/snippet of raw items first and discard unrelated items (e.g., pure entertainment, recipes, celebrity news) before reverse-engineering.
+2. **Action Type Weighting**:
+   - If requested (e.g., "只分析收藏，跳过点赞"), filter items where `action_type == 'favorite'`.
+3. **Quantity Limit Control**:
+   - Limit the fetch or processing to the top N newest items (e.g., `--limit 5` for latest 5 items per platform).
 
 ## Workflow Details
 
