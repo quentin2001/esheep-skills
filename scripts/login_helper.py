@@ -23,13 +23,15 @@ def login_platform(platform: str):
     print(f"[*] Opening browser for {platform}. Please log in manually...")
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
-        context = browser.new_context()
-        page = context.new_page()
-        page.goto(url)
-        input(f"[>] Press ENTER in this console after you have successfully logged into {platform}...")
-        context.storage_state(path=save_path)
-        print(f"[✓] Saved session state to {save_path}")
-        browser.close()
+        try:
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto(url)
+            input(f"[>] Press ENTER in this console after you have successfully logged into {platform}...")
+            context.storage_state(path=save_path)
+            print(f"[✓] Saved session state to {save_path}")
+        finally:
+            browser.close()
 
 def main():
     parser = argparse.ArgumentParser(description="Interactive Login Helper for Social Platforms")
