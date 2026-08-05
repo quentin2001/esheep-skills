@@ -11,19 +11,28 @@ Transform raw social media likes and favorites into an actionable self-media top
 
 This skill guides the agent through fetching user favorites/likes across social platforms (Bilibili, Zhihu, Xiaohongshu, Douyin, X/Twitter), parsing raw data stored in `data/raw_favs.json`, reverse-engineering viral hooks and topic angles, and appending structured content ideas to `data/content_ideas_database.md`.
 
-## Workflow
+## Conversational Agent Workflow
 
-### 1. Trigger Data Scraper
+The user will interact with you **purely through chat messages**. You must automatically execute the required background commands using `run_command` without asking the user to use the command line.
 
-Run the scraper script to capture newly liked or favorited posts across all supported platforms:
+### Scenario A: Initial Login or Changing Accounts
+When the user asks to log in or switch accounts for specific platforms (e.g., "帮我登录小红书", "换一个B站账号"):
+1. Execute: `python scripts/login_helper.py --platform <platform>` (or `--platform all` if they want to log into all).
+2. Prompt the user in chat: "我已经调起了 [<platform>] 的登录窗口，请在弹出的浏览器中登录您的账号。登录完成后请回复我‘登录完成了’。"
 
-```bash
-python scripts/fetcher.py --platform all
-```
+### Scenario B: Selective Platform Scanning
+When the user asks to fetch likes/favorites from specific platforms (e.g., "只抓取小红书和抖音", "查看B站近期的收藏"):
+1. Parse the requested platforms.
+2. Execute `python scripts/fetcher.py --platform <platform>` for each requested platform.
+3. Read `data/raw_favs.json` and process newly added entries.
 
-*Note: If browser session credentials have expired or are missing, run `python scripts/login_helper.py --platform <platform>` first.*
+### Scenario C: Full Automatic Topic Generation
+When the user asks to generate topics (e.g., "扫描我最近喜欢的内容生成选题"):
+1. Execute `python scripts/fetcher.py --platform all` (or specific platforms if specified).
+2. If any platform session is missing, inform the user and automatically trigger Scenario A for that platform.
+3. Process `data/raw_favs.json`, perform topic reverse-engineering, and update `data/content_ideas_database.md`.
 
-### 2. Scan Raw Favorites & Likes
+## Workflow Details
 
 Read and inspect `data/raw_favs.json` to find unprocessed or newly added items. Each item contains:
 - `id`: Platform-prefixed unique ID
