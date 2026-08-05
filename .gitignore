@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.sessions/
+data/
+tests/test_raw_favs.json
