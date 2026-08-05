@@ -1,313 +1,330 @@
 import os
+import sys
+import json
 import re
-import time
-import argparse
+import urllib.request
 from datetime import datetime
-from bs4 import BeautifulSoup
-from scripts.config import RAW_FAVS_FILE, SESSIONS_DIR
-from scripts.storage import add_new_favs
-from scripts.login_helper import get_session_path, PLATFORMS
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from playwright.sync_api import sync_playwright
+from scripts.config import SESSIONS_DIR, RAW_FAVS_FILE, IDEAS_DB_FILE, CDP_PORT
+from scripts.storage import add_new_favs, load_raw_favs
 
 def parse_raw_item(item: dict) -> dict:
-    raw_id = item.get("id", str(time.time()))
-    platform = item.get("platform", "generic")
+    platform = item.get("platform", "unknown")
+    raw_id = item.get("id", str(hash(str(item))))
+    action_type = item.get("action_type", "favorite")
+    title = item.get("title", "").strip()
+    url = item.get("url", "")
+    text_snippet = item.get("text_snippet", "").strip()
+    tags = item.get("tags", [])
+
+    item_id = f"{platform}_{raw_id}" if not str(raw_id).startswith(platform) else str(raw_id)
+
     return {
-        "id": f"{platform}_{raw_id}",
+        "id": item_id,
         "platform": platform,
-        "action_type": item.get("action_type", "favorite"),
-        "title": item.get("title", "").strip(),
-        "url": item.get("url", ""),
-        "text_snippet": item.get("text_snippet", "").strip(),
-        "tags": item.get("tags", []),
+        "action_type": action_type,
+        "title": title if title else f"{platform}_item_{raw_id}",
+        "url": url,
+        "text_snippet": text_snippet,
+        "tags": tags if isinstance(tags, list) else [],
         "scraped_at": datetime.now().isoformat()
     }
 
-def extract_items_from_html(platform: str, html_content: str, action_type: str = "favorite", limit: int = 10) -> list:
-    soup = BeautifulSoup(html_content, "html.parser")
+def extract_items_from_json(platform: str, json_data: dict, action_type: str = "favorite") -> list:
     items = []
-    seen_ids = set()
+    if not isinstance(json_data, dict):
+        return items
 
-    if platform == "bilibili":
-        anchors = soup.find_all("a", href=True)
-        for a in anchors:
-            href = a.get("href", "")
-            bv_match = re.search(r'BV[a-zA-Z0-9]+', href)
-            if bv_match:
-                bv_id = bv_match.group(0)
-                if bv_id in seen_ids:
-                    continue
-                seen_ids.add(bv_id)
-
-                title = a.get_text(strip=True)
-                if not title or len(title) < 2:
-                    parent = a.find_parent(["li", "div", "article"])
-                    if parent:
-                        title_el = parent.find(class_=re.compile(r'title', re.I)) or parent.find(["h3", "h2", "h1"])
-                        if title_el:
-                            title = title_el.get_text(strip=True)
-                        else:
-                            title = parent.get_text(strip=True)
-                if not title:
-                    title = bv_id
-
-                items.append(parse_raw_item({
-                    "platform": "bilibili",
-                    "action_type": action_type,
-                    "id": bv_id,
-                    "title": title,
-                    "url": f"https://www.bilibili.com/video/{bv_id}"
-                }))
-                if len(items) >= limit:
-                    break
-
-    elif platform == "zhihu":
-        anchors = soup.find_all("a", href=True)
-        for a in anchors:
-            href = a.get("href", "")
-            ans_match = re.search(r'/question/(\d+)/answer/(\d+)', href)
-            p_match = re.search(r'/p/(\d+)', href)
-            q_match = re.search(r'/question/(\d+)', href)
-
-            raw_id = None
-            url = None
-
-            if ans_match:
-                q_id, a_id = ans_match.groups()
-                raw_id = f"answer_{a_id}"
-                url = f"https://www.zhihu.com/question/{q_id}/answer/{a_id}"
-            elif p_match:
-                p_id = p_match.group(1)
-                raw_id = f"p_{p_id}"
-                url = f"https://www.zhihu.com/p/{p_id}"
-            elif q_match and not ans_match:
-                q_id = q_match.group(1)
-                raw_id = f"question_{q_id}"
-                url = f"https://www.zhihu.com/question/{q_id}"
-
-            if raw_id and url and raw_id not in seen_ids:
-                seen_ids.add(raw_id)
-                title = a.get_text(strip=True)
-                if not title or len(title) < 2:
-                    parent = a.find_parent(["div", "li", "article", "h2", "h3"])
-                    if parent:
-                        title_el = parent.find(class_=re.compile(r'title', re.I)) or parent.find(["h2", "h3"])
-                        if title_el:
-                            title = title_el.get_text(strip=True)
-                        else:
-                            title = parent.get_text(strip=True)
-                if not title:
-                    title = raw_id
-
-                items.append(parse_raw_item({
-                    "platform": "zhihu",
-                    "action_type": action_type,
-                    "id": raw_id,
-                    "title": title,
-                    "url": url
-                }))
-                if len(items) >= limit:
-                    break
-
-    elif platform == "xiaohongshu":
-        anchors = soup.find_all("a", href=True)
-        for a in anchors:
-            href = a.get("href", "")
-            exp_match = re.search(r'/explore/([a-zA-Z0-9]+)', href)
-            if exp_match:
-                note_id = exp_match.group(1)
-                if note_id in seen_ids:
-                    continue
-                seen_ids.add(note_id)
-
-                title = ""
-                parent = a.find_parent(class_=re.compile(r'note-item', re.I)) or a.find_parent(["section", "div", "li"])
-                if parent:
-                    title_el = parent.find(class_=re.compile(r'title', re.I))
-                    if title_el:
-                        title = title_el.get_text(strip=True)
-                if not title:
-                    title = a.get_text(strip=True)
-                if not title:
-                    title = note_id
-
-                items.append(parse_raw_item({
-                    "platform": "xiaohongshu",
-                    "action_type": action_type,
-                    "id": note_id,
-                    "title": title,
-                    "url": f"https://www.xiaohongshu.com/explore/{note_id}"
-                }))
-                if len(items) >= limit:
-                    break
-
-    elif platform == "douyin":
-        anchors = soup.find_all("a", href=True)
-        for a in anchors:
-            href = a.get("href", "")
-            vid_match = re.search(r'/video/([a-zA-Z0-9_-]+)', href)
-            if vid_match:
-                vid_id = vid_match.group(1)
-                raw_id = f"{action_type}_{vid_id}" if action_type == "like" else vid_id
-                if vid_id in seen_ids:
-                    continue
-                seen_ids.add(vid_id)
-
-                title = ""
-                p_el = a.find("p")
-                if p_el:
-                    title = p_el.get_text(strip=True)
-                if not title:
-                    parent = a.find_parent(["li", "div"])
-                    if parent:
-                        p_el = parent.find("p")
-                        if p_el:
-                            title = p_el.get_text(strip=True)
-                if not title:
-                    title = a.get_text(strip=True)
-                if not title:
-                    title = vid_id
-
-                items.append(parse_raw_item({
-                    "platform": "douyin",
-                    "action_type": action_type,
-                    "id": raw_id,
-                    "title": title,
-                    "url": f"https://www.douyin.com/video/{vid_id}"
-                }))
-                if len(items) >= limit:
-                    break
-
-    elif platform == "x":
-        tweets = soup.find_all("article", attrs={"data-testid": "tweet"})
-        if tweets:
-            for tw in tweets:
-                status_a = tw.find("a", href=re.compile(r'/status/\d+'))
-                if status_a:
-                    status_href = status_a.get("href", "")
-                    st_match = re.search(r'/status/(\d+)', status_href)
-                    if st_match:
-                        tweet_id = st_match.group(1)
-                        if tweet_id in seen_ids:
-                            continue
-                        seen_ids.add(tweet_id)
-
-                        text_el = tw.find("div", attrs={"data-testid": "tweetText"})
-                        text_snippet = text_el.get_text(strip=True) if text_el else tw.get_text(strip=True)
-                        title = text_snippet[:50] if text_snippet else tweet_id
-
-                        items.append(parse_raw_item({
-                            "platform": "x",
-                            "action_type": action_type,
-                            "id": tweet_id,
-                            "title": title,
-                            "text_snippet": text_snippet,
-                            "url": f"https://x.com/i/web/status/{tweet_id}"
-                        }))
-                        if len(items) >= limit:
-                            break
-        else:
-            anchors = soup.find_all("a", href=re.compile(r'/status/\d+'))
-            for a in anchors:
-                href = a.get("href", "")
-                st_match = re.search(r'/status/(\d+)', href)
-                if st_match:
-                    tweet_id = st_match.group(1)
-                    if tweet_id in seen_ids:
-                        continue
-                    seen_ids.add(tweet_id)
-                    text_snippet = a.get_text(strip=True) or tweet_id
+    # Douyin API: aweme_list / data
+    aweme_list = json_data.get("aweme_list") or json_data.get("data")
+    if isinstance(aweme_list, list):
+        for aweme in aweme_list:
+            if isinstance(aweme, dict):
+                vid_id = aweme.get("aweme_id") or aweme.get("id")
+                desc = aweme.get("desc") or aweme.get("title") or ""
+                if vid_id and desc:
                     items.append(parse_raw_item({
-                        "platform": "x",
+                        "platform": "douyin",
                         "action_type": action_type,
-                        "id": tweet_id,
-                        "title": text_snippet[:50],
-                        "text_snippet": text_snippet,
-                        "url": f"https://x.com/i/web/status/{tweet_id}"
+                        "id": str(vid_id),
+                        "title": str(desc).strip(),
+                        "url": f"https://www.douyin.com/video/{vid_id}"
                     }))
-                    if len(items) >= limit:
-                        break
+
+    # Xiaohongshu API: notes / items / data / collect_notes
+    notes_list = json_data.get("notes") or json_data.get("items") or json_data.get("collect_notes")
+    if not notes_list and isinstance(json_data.get("data"), dict):
+        d_obj = json_data.get("data", {})
+        notes_list = d_obj.get("notes") or d_obj.get("items") or d_obj.get("collect_notes") or d_obj.get("notes_list")
+
+    if isinstance(notes_list, list):
+        for note in notes_list:
+            if isinstance(note, dict):
+                note_id = note.get("note_id") or note.get("id") or note.get("noteId")
+                display_title = note.get("display_title") or note.get("title") or note.get("desc")
+                xsec_token = note.get("xsec_token") or note.get("xsecToken") or ""
+                
+                if note_id and display_title:
+                    note_id_str = str(note_id)
+                    if xsec_token:
+                        full_url = f"https://www.xiaohongshu.com/explore/{note_id_str}?xsec_token={xsec_token}&xsec_source=pc_feed"
+                    else:
+                        full_url = f"https://www.xiaohongshu.com/explore/{note_id_str}"
+                        
+                    items.append(parse_raw_item({
+                        "platform": "xiaohongshu",
+                        "action_type": action_type,
+                        "id": note_id_str,
+                        "title": str(display_title).strip(),
+                        "url": full_url
+                    }))
 
     return items
 
-def fetch_platform(platform: str, headless: bool = True, limit: int = 10) -> list:
-    session_file = get_session_path(platform)
-    if not os.path.exists(session_file):
-        print(f"[!] Session state for {platform} not found. Please run login_helper.py --platform {platform} first.")
-        return []
+def is_cdp_port_active(port: int = CDP_PORT) -> bool:
+    try:
+        req = urllib.request.urlopen(f"http://127.0.0.1:{port}/json/version", timeout=1)
+        return req.status == 200
+    except Exception:
+        return False
 
+def check_account_logged_in(platform: str, page) -> bool:
+    try:
+        if platform == "xiaohongshu":
+            page.goto("https://www.xiaohongshu.com/explore", wait_until="domcontentloaded")
+            page.wait_for_timeout(2000)
+            me = page.query_selector("a[href*='/user/profile/']")
+            return me is not None
+        elif platform == "douyin":
+            page.goto("https://www.douyin.com", wait_until="domcontentloaded")
+            page.wait_for_timeout(2000)
+            my = page.query_selector("a[href*='/user/']") or page.query_selector("span:has-text('我的')")
+            return my is not None
+    except Exception:
+        pass
+    return False
+
+def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cdp: bool = True) -> list:
     items = []
-    from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-
-    targets = []
-    if platform == "bilibili":
-        targets = [
-            ("https://space.bilibili.com/favlist", "favorite", "a[href*='/video/'], .fav-video-list"),
-            ("https://space.bilibili.com/history", "like", "a[href*='/video/'], .bili-video-card")
-        ]
-    elif platform == "zhihu":
-        targets = [
-            ("https://www.zhihu.com/collections/mine", "favorite", "a[href*='/question/'], a[href*='/p/'], a[href*='/answer/']"),
-            ("https://www.zhihu.com/people/self/answers", "like", "a[href*='/question/'], a[href*='/p/'], a[href*='/answer/']")
-        ]
-    elif platform == "xiaohongshu":
-        targets = [
-            ("https://www.xiaohongshu.com/user/profile/self", "favorite", ".note-item, a[href*='/explore/']"),
-            ("https://www.xiaohongshu.com/user/profile/self?tab=likes", "like", ".note-item, a[href*='/explore/']")
-        ]
-    elif platform == "douyin":
-        targets = [
-            ("https://www.douyin.com/user/self?showTab=like", "like", "a[href*='/video/']"),
-            ("https://www.douyin.com/user/self?showTab=favorite", "favorite", "a[href*='/video/']")
-        ]
-    elif platform == "x":
-        targets = [
-            ("https://x.com/i/bookmarks", "favorite", "article[data-testid='tweet']"),
-            ("https://x.com/i/likes", "like", "article[data-testid='tweet']")
-        ]
+    print(f"[*] [MediaCrawler-Engine] 启动 {platform} 提取引擎 (limit={limit})...")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless)
-        try:
-            context = browser.new_context(storage_state=session_file)
-            page = context.new_page()
+        browser = None
+        context = None
 
-            for url, action_type, wait_selector in targets:
-                try:
-                    page.goto(url)
+        if use_cdp and is_cdp_port_active(CDP_PORT):
+            print(f"[+] 成功通过 CDP 直连端口 127.0.0.1:{CDP_PORT}")
+            try:
+                browser = p.chromium.connect_over_cdp(f"http://127.0.0.1:{CDP_PORT}")
+                context = browser.contexts[0] if browser.contexts else browser.new_context()
+            except Exception as err:
+                print(f"[!] CDP 直连失败: {err}")
+
+        if not context:
+            print(f"[!] 未检测到 127.0.0.1:{CDP_PORT} CDP 调试端口。请确保先运行带 9222 端口命令启动 Chrome。")
+            return []
+
+        # Reuse current active page if available, or create tab
+        page = context.pages[0] if context.pages else context.new_page()
+
+        # Register Response Listener for API Payload Unpacking
+        def on_response(response):
+            try:
+                url_lower = response.url.lower()
+                if "json" in response.headers.get("content-type", "").lower() or any(k in url_lower for k in ["collect", "posted", "like", "fav", "aweme", "note", "feed"]):
+                    if any(k in url_lower for k in ["collect", "posted", "like", "fav", "aweme", "note", "feed", "user"]):
+                        if "collect" in url_lower:
+                            atype = "favorite"
+                        elif any(k in url_lower for k in ["like", "favorite"]):
+                            atype = "like"
+                        else:
+                            atype = "favorite"
+
+                        data = response.json()
+                        parsed = extract_items_from_json(platform, data, action_type=atype)
+                        items.extend(parsed)
+            except Exception:
+                pass
+
+        page.on("response", on_response)
+
+        # Platform Navigation
+        try:
+            if platform == "xiaohongshu":
+                page.goto("https://www.xiaohongshu.com/explore", wait_until="domcontentloaded")
+                page.wait_for_timeout(2000)
+
+                profile_link = page.query_selector("a[href*='/user/profile/']")
+                if profile_link:
+                    href = profile_link.get_attribute("href") or ""
+                    base_profile = f"https://www.xiaohongshu.com{href}" if href.startswith("/") else href
+                    pure_profile = base_profile.split("?")[0]
+
+                    # 1. 真实收藏页 (tab=fav&subTab=note)
+                    print(f"[*] 导航至小红书真实收藏页: {pure_profile}?tab=fav&subTab=note")
+                    page.goto(f"{pure_profile}?tab=fav&subTab=note", wait_until="domcontentloaded")
+                    page.wait_for_timeout(3000)
+                    for _ in range(2):
+                        page.evaluate("window.scrollBy(0, 800)")
+                        page.wait_for_timeout(1000)
+
+                    anchors_c = page.query_selector_all("a[href*='/explore/']")
+                    for a in anchors_c:
+                        try:
+                            href_a = a.get_attribute("href") or ""
+                            text_a = a.inner_text().strip()
+                            nid_m = re.search(r'/explore/([a-zA-Z0-9]+)', href_a)
+                            if nid_m:
+                                nid = nid_m.group(1)
+                                full_url = f"https://www.xiaohongshu.com{href_a}" if href_a.startswith("/") else href_a
+                                if text_a and "小红书" not in text_a and len(text_a) > 2:
+                                    items.append(parse_raw_item({
+                                        "platform": "xiaohongshu",
+                                        "action_type": "favorite",
+                                        "id": nid,
+                                        "title": text_a,
+                                        "url": full_url
+                                    }))
+                        except Exception:
+                            pass
+
+                    # 2. 真实点赞页 (tab=liked&subTab=note)
+                    print(f"[*] 导航至小红书真实点赞页: {pure_profile}?tab=liked&subTab=note")
+                    page.goto(f"{pure_profile}?tab=liked&subTab=note", wait_until="domcontentloaded")
+                    page.wait_for_timeout(3000)
+                    for _ in range(2):
+                        page.evaluate("window.scrollBy(0, 800)")
+                        page.wait_for_timeout(1000)
+
+                    anchors_l = page.query_selector_all("a[href*='/explore/']")
+                    for a in anchors_l:
+                        try:
+                            href_a = a.get_attribute("href") or ""
+                            text_a = a.inner_text().strip()
+                            nid_m = re.search(r'/explore/([a-zA-Z0-9]+)', href_a)
+                            if nid_m:
+                                nid = nid_m.group(1)
+                                full_url = f"https://www.xiaohongshu.com{href_a}" if href_a.startswith("/") else href_a
+                                if text_a and "小红书" not in text_a and len(text_a) > 2:
+                                    items.append(parse_raw_item({
+                                        "platform": "xiaohongshu",
+                                        "action_type": "like",
+                                        "id": nid,
+                                        "title": text_a,
+                                        "url": full_url
+                                    }))
+                        except Exception:
+                            pass
+
+            elif platform == "douyin":
+                # 1. 真实收藏页 - 直接前往官方精准 URL (showTab=favorite_collection)
+                print("[*] 前往抖音官方收藏页: showTab=favorite_collection")
+                page.goto("https://www.douyin.com/user/self?from_tab_name=main&showSubTab=video&showTab=favorite_collection", wait_until="domcontentloaded")
+                page.wait_for_timeout(3000)
+                for _ in range(2):
+                    page.evaluate("window.scrollBy(0, 800)")
+                    page.wait_for_timeout(1000)
+
+                fav_anchors = page.query_selector_all("a[href*='/video/']")
+                for a in fav_anchors:
                     try:
-                        page.wait_for_selector(wait_selector, timeout=5000)
-                    except PlaywrightTimeoutError:
-                        pass
+                        is_sidebar = a.evaluate("el => !!el.closest('.side-bar, .recommend, .footer, [class*=\"sidebar\"], [class*=\"recommend\"]')")
+                        if is_sidebar:
+                            continue
+
+                        href_a = a.get_attribute("href") or ""
+                        vid_m = re.search(r'(?:/video/|modal_id=)(\d+)', href_a)
+                        if vid_m:
+                            vid = vid_m.group(1)
+                            text_a = a.evaluate("el => { const parent = el.closest('li, div[class*=\"card\"], div[class*=\"item\"]'); return parent ? parent.innerText : el.innerText; }")
+                            if text_a:
+                                text_a = text_a.strip().replace("\n", " ")
+                                text_clean = re.sub(r'^\d+(\.\d+)?[万亿]?\s*', '', text_a).strip()
+                                if text_clean and len(text_clean) > 2:
+                                    items.append(parse_raw_item({
+                                        "platform": "douyin",
+                                        "action_type": "favorite",
+                                        "id": vid,
+                                        "title": text_clean,
+                                        "url": f"https://www.douyin.com/video/{vid}"
+                                    }))
                     except Exception:
                         pass
 
-                    html_content = page.content()
-                    extracted = extract_items_from_html(platform, html_content, action_type=action_type, limit=limit)
-                    items.extend(extracted)
-                except Exception as e:
-                    print(f"[!] Error fetching {platform} target {url}: {e}")
-        finally:
-            browser.close()
+                # 2. 真实喜欢/点赞页 - 触发 '喜欢' 选项卡解包
+                print("[*] 前往抖音官方个人主页并解锁喜欢(Private)列表...")
+                page.goto("https://www.douyin.com/user/self", wait_until="domcontentloaded")
+                page.wait_for_timeout(3000)
 
-    return items
+                like_tab = None
+                for elem in page.query_selector_all("div, span, li"):
+                    try:
+                        txt = elem.inner_text().strip()
+                        if "喜欢" in txt and len(txt) < 8:
+                            like_tab = elem
+                            break
+                    except Exception:
+                        pass
 
-def main():
-    parser = argparse.ArgumentParser(description="Fetch social media favorites & likes")
-    parser.add_argument("--platform", choices=list(PLATFORMS.keys()) + ["all"], default="all")
-    parser.add_argument("--headless", action="store_true", default=True)
-    parser.add_argument("--limit", type=int, default=10, help="Max items to fetch per target page")
-    args = parser.parse_args()
+                if like_tab:
+                    like_tab.click()
+                    page.wait_for_timeout(3000)
+                    for _ in range(2):
+                        page.evaluate("window.scrollBy(0, 800)")
+                        page.wait_for_timeout(1000)
 
-    all_fetched = []
-    platforms = list(PLATFORMS.keys()) if args.platform == "all" else [args.platform]
+        except Exception as err:
+            print(f"[!] {platform} 页面导航提示: {err}")
 
-    for p in platforms:
-        print(f"[*] Fetching from {p}...")
-        fetched = fetch_platform(p, headless=args.headless, limit=args.limit)
-        all_fetched.extend(fetched)
+    clean_items = []
+    seen = set()
+    for it in items:
+        if it["id"] not in seen:
+            seen.add(it["id"])
+            clean_items.append(it)
 
-    added = add_new_favs(all_fetched, RAW_FAVS_FILE)
-    print(f"[✓] Fetch complete. Scraped {len(all_fetched)} items, added {len(added)} new items to {RAW_FAVS_FILE}.")
+    print(f"[OK] {platform} 抓取完成，提炼到 {len(clean_items)} 条真实个人记录。")
+    add_new_favs(clean_items, RAW_FAVS_FILE)
+    return clean_items[:limit]
+
+def write_markdown_database():
+    all_raw = load_raw_favs(RAW_FAVS_FILE)
+    by_platform = {}
+    for item in all_raw:
+        p = item.get("platform", "other")
+        a = item.get("action_type", "favorite")
+        by_platform.setdefault(p, {}).setdefault(a, []).append(item)
+
+    md = ["# 自媒体全平台精选内容数据库 (严格个人真数据校验版)\n"]
+    for p, actions in by_platform.items():
+        md.append(f"## 平台: {p.upper()}\n")
+        for a_type, p_items in actions.items():
+            a_label = "收藏 (Favorite)" if a_type == "favorite" else "喜欢/点赞 (Like)"
+            md.append(f"### 标签: {a_label} (共 {len(p_items)} 条记录)\n")
+            for idx, item in enumerate(p_items[:10], 1):
+                md.append(f"{idx}. **{item['title']}**\n   - 直链地址: [{item['url']}]({item['url']})\n   - 唯一ID: `{item['id']}`\n")
+
+    out_md = "\n".join(md)
+    with open(IDEAS_DB_FILE, "w", encoding="utf-8") as f:
+        f.write(out_md)
+    print(f"[OK] 数据库已更新至: {IDEAS_DB_FILE}")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="MediaCrawler-inspired Social Media Engine")
+    parser.add_argument("--platform", type=str, default="xiaohongshu", choices=["bilibili", "zhihu", "xiaohongshu", "douyin", "x", "all"])
+    parser.add_argument("--limit", type=int, default=5)
+    args = parser.parse_args()
+
+    if args.platform == "all":
+        for plat in ["xiaohongshu", "douyin", "bilibili", "zhihu", "x"]:
+            fetch_platform(plat, limit=args.limit)
+    else:
+        fetch_platform(args.platform, limit=args.limit)
+
+    write_markdown_database()

@@ -1,10 +1,16 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 SESSIONS_DIR = os.path.join(BASE_DIR, ".sessions")
 DATA_DIR = os.path.join(BASE_DIR, "data")
+
 RAW_FAVS_FILE = os.path.join(DATA_DIR, "raw_favs.json")
 IDEAS_DB_FILE = os.path.join(DATA_DIR, "content_ideas_database.md")
+
+# MediaCrawler Inspired Configuration
+ENABLE_CDP_MODE = True
+CDP_PORT = 9222
 
 os.makedirs(SESSIONS_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)

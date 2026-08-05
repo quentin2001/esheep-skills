@@ -28,69 +28,58 @@ def login_platform(platform: str):
     from playwright.sync_api import sync_playwright
 
     url = PLATFORMS[platform]
+    user_data_dir = os.path.join(SESSIONS_DIR, f"{platform}_user_data")
     save_path = get_session_path(platform)
-    print(f"[*] Opening browser for {platform}. Please log in manually...")
+    print(f"[*] Opening persistent browser for {platform}. Please log in manually...")
 
-    # Cross-platform popup fallback: Open system default browser just in case
     try:
         webbrowser.open(url)
     except Exception:
         pass
 
     with sync_playwright() as p:
-        browser = None
-        # Try native system Chrome or Edge first for best desktop focus on Mac & Windows
-        for channel in ["chrome", "msedge", None]:
-            try:
-                if channel:
-                    browser = p.chromium.launch(channel=channel, headless=False, args=["--start-maximized"])
-                else:
-                    browser = p.chromium.launch(headless=False, args=["--start-maximized"])
-                break
-            except Exception:
-                continue
-
-        if not browser:
-            raise RuntimeError("Could not launch Chromium browser.")
-
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=user_data_dir,
+            headless=False,
+            viewport={"width": 1920, "height": 1080},
+            args=["--disable-blink-features=AutomationControlled", "--start-maximized"]
+        )
         try:
-            context = browser.new_context(no_viewport=True)
-            page = context.new_page()
-            page.goto(url)
+            page = context.new_page() if not context.pages else context.pages[0]
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            except Exception:
+                pass
             try:
                 page.bring_to_front()
             except Exception:
                 pass
 
-            # Mac osascript bring window to front fallback
-            if sys_platform.system() == "Darwin":
-                try:
-                    import subprocess
-                    subprocess.run(["osascript", "-e", 'tell application "Google Chrome" to activate'], check=False)
-                except Exception:
-                    pass
-
-            input(f"[>] Press ENTER in this console after you have successfully logged into {platform}...")
+            print(f"[*] 请拿起手机扫码登录 {platform}，登录成功后页面会自动验证保存...")
             
-            # Verify and settle session by navigating to self profile
-            profile_urls = {
-                "xiaohongshu": "https://www.xiaohongshu.com/user/profile/self",
-                "douyin": "https://www.douyin.com/user/self",
-                "bilibili": "https://space.bilibili.com",
-                "zhihu": "https://www.zhihu.com/people/self",
-                "x": "https://x.com/home"
-            }
-            if platform in profile_urls:
+            # Loop-detect real user login state automatically
+            login_verified = False
+            for _ in range(60): # Wait up to 120s for user to scan QR code
                 try:
-                    page.goto(profile_urls[platform])
-                    page.wait_for_timeout(3000)
+                    curr_url = page.url
+                    # Check if logged in by looking for user profile elements
+                    has_me_link = page.query_selector("a[href*='/user/profile/']") or page.query_selector("a[href*='/user/self']") or page.query_selector(".avatar") or page.query_selector("img[src*='avatar']")
+                    
+                    if "login" not in curr_url and (has_me_link or "user/self" in curr_url or "space.bilibili.com" in curr_url or "zhihu.com/people" in curr_url):
+                        login_verified = True
+                        print(f"[OK] 检测到 {platform} 账号已登录成功！正在保存状态...")
+                        break
                 except Exception:
                     pass
+                page.wait_for_timeout(2000)
+
+            if not login_verified:
+                print(f"[!] 提示：在 2 分钟内未检测到 {platform} 的成功登录动作。")
 
             context.storage_state(path=save_path)
             print(f"[OK] Saved verified session state for {platform} to {save_path}")
         finally:
-            browser.close()
+            context.close()
 
 def main():
     parser = argparse.ArgumentParser(description="Interactive Login Helper for Social Platforms")

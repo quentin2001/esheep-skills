@@ -105,5 +105,7 @@ Append each processed topic idea into `data/content_ideas_database.md` using the
 | Command | Purpose |
 |---------|---------|
 | `python scripts/login_helper.py --platform <name>` | Save browser login state for a platform |
-| `python scripts/fetcher.py --platform all` | Scrape latest likes/favorites across all platforms |
-| `python scripts/fetcher.py --platform bilibili` | Scrape from a specific platform |
+| `python scripts/fetcher.py --platform all` | Scrape latest likes/favorites across all platforms using MediaCrawler CDP Engine |
+| `python scripts/fetcher.py --platform xiaohongshu --limit 5` | Scrape latest 5 items from Xiaohongshu |
+| `python scripts/fetcher.py --platform douyin --limit 5` | Scrape latest 5 items from Douyin |
+| `python scripts/fetcher.py --platform <name> --no-cdp` | Fallback to Playwright persistent context mode |
