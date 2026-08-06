@@ -189,7 +189,7 @@ def test_serve_default_web_dir(tmp_path):
             assert resp.status == 200
             content = resp.read().decode("utf-8")
             assert "Topic Master" in content
-            assert "list-inbox" in content
+            assert "root" in content
     finally:
         httpd.shutdown()
         httpd.server_close()

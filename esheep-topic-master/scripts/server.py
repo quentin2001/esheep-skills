@@ -25,12 +25,7 @@ class TopicRequestHandler(SimpleHTTPRequestHandler):
     web_dir = None
 
     def __init__(self, *args, **kwargs):
-        if self.web_dir:
-            web_directory = str(self.web_dir)
-        elif (BASE_DIR / "topic-master" / "dist").exists():
-            web_directory = str(BASE_DIR / "topic-master" / "dist")
-        else:
-            web_directory = str(BASE_DIR / "web")
+        web_directory = str(self.web_dir) if self.web_dir else str(BASE_DIR / "web")
         super().__init__(*args, directory=web_directory, **kwargs)
 
     def _send_json(self, data, status_code=200):
