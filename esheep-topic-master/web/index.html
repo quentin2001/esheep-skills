@@ -6,88 +6,30 @@
   <title>Topic Master - Kanban Board</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
-          "colors": {
-            "error-container": "#93000a",
-            "surface-container-highest": "#353534",
-            "surface-container-lowest": "#0e0e0e",
-            "surface-container": "#201f1f",
-            "tertiary": "#c8c6c6",
-            "error": "#ffb4ab",
-            "surface-variant": "#353534",
-            "on-surface": "#e5e2e1",
-            "on-tertiary-container": "#2c2c2c",
-            "on-background": "#e5e2e1",
-            "on-secondary-fixed-variant": "#474746",
-            "surface-dim": "#131313",
-            "on-secondary-container": "#b6b5b4",
-            "tertiary-fixed": "#e4e2e1",
-            "on-secondary": "#303030",
-            "secondary-fixed": "#e4e2e1",
-            "on-error": "#690005",
-            "on-primary-fixed": "#370e00",
-            "surface-bright": "#393939",
-            "secondary-container": "#474746",
-            "surface-container-low": "#1c1b1b",
-            "primary": "#ffb599",
-            "inverse-primary": "#a63b00",
-            "on-primary": "#5a1c00",
-            "surface-container-high": "#2a2a2a",
-            "on-tertiary": "#303030",
-            "secondary-fixed-dim": "#c8c6c5",
-            "primary-fixed-dim": "#ffb599",
-            "on-surface-variant": "#e4bfb1",
-            "tertiary-container": "#949393",
-            "surface": "#131313",
-            "secondary": "#c8c6c5",
-            "on-primary-container": "#531a00",
+          colors: {
+            "background": "var(--bg-color)",
+            "on-background": "var(--on-bg-color)",
+            "surface-container": "var(--surface-container)",
+            "surface-container-high": "var(--surface-container-high)",
+            "surface-container-lowest": "var(--surface-container-lowest)",
+            "surface-variant": "var(--surface-variant)",
+            "on-surface": "var(--on-surface)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "primary": "#ff5f00",
             "primary-container": "#ff5f00",
-            "inverse-surface": "#e5e2e1",
-            "tertiary-fixed-dim": "#c8c6c6",
-            "on-primary-fixed-variant": "#7f2b00",
-            "on-error-container": "#ffdad6",
-            "on-secondary-fixed": "#1b1c1c",
-            "inverse-on-surface": "#313030",
-            "outline-variant": "#5b4137",
-            "on-tertiary-fixed-variant": "#474747",
-            "on-tertiary-fixed": "#1b1c1c",
-            "background": "#131313",
-            "outline": "#ab8a7d",
-            "primary-fixed": "#ffdbce",
-            "surface-tint": "#ffb599"
+            "on-primary-container": "#ffffff",
+            "inverse-primary": "#a63b00",
+            "outline": "var(--outline-color)"
           },
-          "borderRadius": {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px"
-          },
-          "spacing": {
-            "gutter": "16px",
-            "base": "8px",
-            "lg": "24px",
-            "xl": "32px",
-            "sm": "12px",
-            "xs": "4px",
-            "margin-desktop": "48px",
-            "margin-mobile": "16px",
-            "md": "16px"
-          },
-          "fontFamily": {
-            "headline-xl": ["Plus Jakarta Sans"],
-            "headline-md": ["Plus Jakarta Sans"],
-            "label-lg": ["Plus Jakarta Sans"],
-            "headline-lg-mobile": ["Plus Jakarta Sans"],
-            "body-lg": ["Plus Jakarta Sans"],
-            "body-md": ["Plus Jakarta Sans"],
-            "headline-lg": ["Plus Jakarta Sans"],
-            "label-sm": ["Plus Jakarta Sans"],
-            "body-sm": ["Plus Jakarta Sans"]
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "Be Vietnam Pro", "sans-serif"],
+            display: ["Plus Jakarta Sans", "sans-serif"]
           }
         }
       }
@@ -97,11 +39,33 @@
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0;
     }
+    html.dark {
+      --bg-color: #111827;
+      --on-bg-color: #f9fafb;
+      --surface-container: #1f2937;
+      --surface-container-high: #374151;
+      --surface-container-lowest: #111827;
+      --surface-variant: #374151;
+      --on-surface: #f9fafb;
+      --on-surface-variant: #9ca3af;
+      --outline-color: #4b5563;
+    }
+    html.light {
+      --bg-color: #fff9e6;
+      --on-bg-color: #251914;
+      --surface-container: #ffe9e2;
+      --surface-container-high: #fbe3dc;
+      --surface-container-lowest: #ffffff;
+      --surface-variant: #f5ded6;
+      --on-surface: #251914;
+      --on-surface-variant: #5b4137;
+      --outline-color: #8f7065;
+    }
     .shadow-ambient {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     .shadow-floating {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
     .scrollbar-hide::-webkit-scrollbar {
       display: none;
@@ -112,120 +76,131 @@
     }
   </style>
 </head>
-<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-background text-on-background font-sans min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
   <!-- TopAppBar -->
-  <header class="bg-surface-container shadow-sm flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md mx-auto z-10 sticky top-0 border-b border-surface-variant">
+  <header class="bg-surface-container shadow-sm flex justify-between items-center w-full px-6 md:px-12 py-4 mx-auto z-10 sticky top-0 border-b border-surface-variant">
     <div class="flex items-center">
-      <span class="font-headline-md text-headline-md text-primary tracking-tight">Topic Master</span>
+      <span class="font-display font-extrabold text-2xl md:text-3xl text-primary tracking-tight">Topic Master</span>
     </div>
-    <div class="flex items-center gap-md">
+    <div class="flex items-center gap-3 md:gap-4">
       <div class="relative hidden sm:block">
-        <input id="search-input" class="w-64 pl-4 pr-10 py-2 bg-surface-container-lowest border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md transition-all" placeholder="Search topics..." type="text"/>
-        <span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant">search</span>
+        <input id="search-input" class="w-64 md:w-80 pl-4 pr-10 py-2 bg-surface-container-lowest border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-lg text-on-surface font-medium text-sm transition-all" placeholder="Search topics..." type="text"/>
+        <span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant text-lg">search</span>
       </div>
-      <button id="import-btn" class="bg-surface-container-high text-on-surface px-lg py-2 rounded-lg font-label-lg shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform flex items-center gap-sm">
-        <span class="material-symbols-outlined">sync</span>
-        Sync Social Favs
+
+      <!-- Theme Toggle Button -->
+      <button id="theme-toggle-btn" title="Toggle Theme" class="bg-surface-container-high text-on-surface p-2.5 rounded-lg shadow-ambient hover:scale-95 transition-transform flex items-center justify-center">
+        <span id="theme-icon" class="material-symbols-outlined text-xl">light_mode</span>
       </button>
-      <button id="new-topic-btn" class="bg-primary-container text-on-primary-container px-lg py-2 rounded-lg font-label-lg border-b-2 border-inverse-primary shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform flex items-center gap-sm">
-        <span class="material-symbols-outlined">add</span>
-        New Topic
+
+      <button id="import-btn" class="bg-surface-container-high text-on-surface px-4 py-2 rounded-lg font-bold text-sm shadow-ambient hover:scale-95 transition-transform flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">sync</span>
+        <span>Sync Social Favs</span>
+      </button>
+
+      <button id="new-topic-btn" class="bg-primary text-white px-5 py-2 rounded-lg font-bold text-sm shadow-ambient hover:scale-95 transition-transform flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">add</span>
+        <span>New Topic</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Content: Kanban Board -->
-  <main class="flex-1 overflow-x-auto p-margin-mobile md:p-margin-desktop scrollbar-hide flex gap-lg h-[calc(100vh-80px)]">
-    <!-- Column 1: Unselected Topics -->
-    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
-      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-surface-variant">
-        <h2 class="font-headline-md text-headline-md text-on-surface">Unselected Topics</h2>
-        <span id="count-inbox" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+  <!-- Main Content: Kanban Board Grid -->
+  <main class="flex-1 w-full max-w-[1920px] mx-auto p-4 md:p-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+      
+      <!-- Column 1: Unselected Topics -->
+      <div class="flex flex-col gap-4 bg-surface-container/40 p-4 rounded-2xl border border-surface-variant/50 min-h-[75vh]">
+        <div class="flex justify-between items-center bg-surface-container px-4 py-3 rounded-xl border-t-4 border-surface-variant shadow-sm">
+          <h2 class="font-bold text-base md:text-lg text-on-surface tracking-tight">Unselected Topics</h2>
+          <span id="count-inbox" class="bg-surface-container-high text-on-surface font-bold text-xs px-2.5 py-1 rounded-full">0</span>
+        </div>
+        <div id="list-inbox" class="card-list flex flex-col gap-4 overflow-y-auto scrollbar-hide pb-6 flex-1 min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'inbox')"></div>
       </div>
-      <div id="list-inbox" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'inbox')"></div>
-    </div>
 
-    <!-- Column 2: Selected Topics -->
-    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
-      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-secondary-container">
-        <h2 class="font-headline-md text-headline-md text-on-surface">Selected Topics</h2>
-        <span id="count-selected" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      <!-- Column 2: Selected Topics -->
+      <div class="flex flex-col gap-4 bg-surface-container/40 p-4 rounded-2xl border border-surface-variant/50 min-h-[75vh]">
+        <div class="flex justify-between items-center bg-surface-container px-4 py-3 rounded-xl border-t-4 border-purple-500 shadow-sm">
+          <h2 class="font-bold text-base md:text-lg text-on-surface tracking-tight">Selected Topics</h2>
+          <span id="count-selected" class="bg-surface-container-high text-on-surface font-bold text-xs px-2.5 py-1 rounded-full">0</span>
+        </div>
+        <div id="list-selected" class="card-list flex flex-col gap-4 overflow-y-auto scrollbar-hide pb-6 flex-1 min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'selected')"></div>
       </div>
-      <div id="list-selected" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'selected')"></div>
-    </div>
 
-    <!-- Column 3: In Progress -->
-    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
-      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-primary">
-        <h2 class="font-headline-md text-headline-md text-on-surface">In Progress</h2>
-        <span id="count-in_progress" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      <!-- Column 3: In Progress -->
+      <div class="flex flex-col gap-4 bg-surface-container/40 p-4 rounded-2xl border border-surface-variant/50 min-h-[75vh]">
+        <div class="flex justify-between items-center bg-surface-container px-4 py-3 rounded-xl border-t-4 border-amber-500 shadow-sm">
+          <h2 class="font-bold text-base md:text-lg text-on-surface tracking-tight">In Progress</h2>
+          <span id="count-in_progress" class="bg-surface-container-high text-on-surface font-bold text-xs px-2.5 py-1 rounded-full">0</span>
+        </div>
+        <div id="list-in_progress" class="card-list flex flex-col gap-4 overflow-y-auto scrollbar-hide pb-6 flex-1 min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'in_progress')"></div>
       </div>
-      <div id="list-in_progress" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'in_progress')"></div>
-    </div>
 
-    <!-- Column 4: Completed -->
-    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
-      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg opacity-70 border border-surface-variant">
-        <h2 class="font-headline-md text-headline-md text-on-surface">Completed</h2>
-        <span id="count-completed" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      <!-- Column 4: Completed -->
+      <div class="flex flex-col gap-4 bg-surface-container/40 p-4 rounded-2xl border border-surface-variant/50 min-h-[75vh]">
+        <div class="flex justify-between items-center bg-surface-container px-4 py-3 rounded-xl border-t-4 border-emerald-500 opacity-80 shadow-sm">
+          <h2 class="font-bold text-base md:text-lg text-on-surface tracking-tight">Completed</h2>
+          <span id="count-completed" class="bg-surface-container-high text-on-surface font-bold text-xs px-2.5 py-1 rounded-full">0</span>
+        </div>
+        <div id="list-completed" class="card-list flex flex-col gap-4 overflow-y-auto scrollbar-hide pb-6 flex-1 min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'completed')"></div>
       </div>
-      <div id="list-completed" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'completed')"></div>
+
     </div>
   </main>
 
   <!-- Edit Modal Overlay -->
-  <div id="editModal" class="hidden fixed inset-0 bg-inverse-surface/60 backdrop-blur-sm z-50 flex items-center justify-center p-margin-mobile">
-    <div class="bg-surface-container-lowest rounded-xl shadow-floating w-full max-w-2xl max-h-[921px] flex flex-col overflow-hidden relative border border-surface-variant">
-      <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container">
-        <h2 id="modal-heading" class="font-headline-lg text-headline-lg text-on-surface">Edit Topic</h2>
+  <div id="editModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-floating w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative border border-surface-variant">
+      <div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container">
+        <h2 id="modal-heading" class="font-bold text-xl text-on-surface">Edit Topic</h2>
         <button id="modal-close" class="text-on-surface-variant hover:text-on-surface">
           <span class="material-symbols-outlined text-2xl">close</span>
         </button>
       </div>
       <form id="topic-form" class="flex flex-col flex-1 overflow-hidden">
         <input type="hidden" id="edit-id">
-        <div class="p-lg overflow-y-auto flex-1 flex flex-col gap-md scrollbar-hide bg-surface-container-lowest">
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-lg text-label-lg text-on-surface-variant">Title</label>
-            <input id="edit-title" required class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
+        <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-4 scrollbar-hide bg-surface-container-lowest">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Title</label>
+            <input id="edit-title" required class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-semibold text-base" type="text"/>
           </div>
-          <div class="grid grid-cols-2 gap-md">
-            <div class="flex flex-col gap-sm">
-              <label class="font-label-lg text-label-lg text-on-surface-variant">Status</label>
-              <select id="edit-status" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Status</label>
+              <select id="edit-status" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm">
                 <option value="inbox">Unselected</option>
                 <option value="selected">Selected</option>
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
-            <div class="flex flex-col gap-sm">
-              <label class="font-label-lg text-label-lg text-on-surface-variant">Category</label>
-              <input id="edit-category" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Category</label>
+              <input id="edit-category" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm" type="text"/>
             </div>
           </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-lg text-label-lg text-on-surface-variant">Hook</label>
-            <textarea id="edit-hook" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="2"></textarea>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Hook</label>
+            <textarea id="edit-hook" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm resize-none" rows="2"></textarea>
           </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-lg text-label-lg text-on-surface-variant">Content Angles</label>
-            <textarea id="edit-angles" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="3" placeholder="- Angle 1&#10;- Angle 2"></textarea>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Content Angles</label>
+            <textarea id="edit-angles" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm resize-none" rows="3" placeholder="- Angle 1&#10;- Angle 2"></textarea>
           </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-lg text-label-lg text-on-surface-variant">Script Outline</label>
-            <textarea id="edit-outline" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="4" placeholder="1. Intro&#10;2. Main Point&#10;3. CTA"></textarea>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Script Outline</label>
+            <textarea id="edit-outline" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm resize-none" rows="4" placeholder="1. Intro&#10;2. Main Point&#10;3. CTA"></textarea>
           </div>
-          <div class="flex flex-col gap-sm">
-            <label class="font-label-lg text-label-lg text-on-surface-variant">Tags (comma separated)</label>
-            <input id="edit-tags" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-bold text-xs text-on-surface-variant uppercase tracking-wider">Tags (comma separated)</label>
+            <input id="edit-tags" class="w-full px-4 py-2.5 bg-surface-container border border-surface-variant focus:border-2 focus:border-primary focus:outline-none rounded-xl text-on-surface font-medium text-sm" type="text"/>
           </div>
         </div>
-        <div class="p-lg border-t border-surface-variant flex justify-between items-center bg-surface-container">
-          <button id="delete-btn" type="button" class="text-error font-label-lg text-label-lg hover:bg-error-container/20 px-4 py-2 rounded-lg transition-colors">Delete</button>
-          <div class="flex gap-md">
-            <button id="modal-cancel" type="button" class="text-on-surface-variant font-label-lg text-label-lg px-4 py-2 hover:bg-surface-variant rounded-lg transition-colors">Cancel</button>
-            <button id="save-btn" type="submit" class="bg-primary-container text-on-primary-container px-lg py-2 rounded-lg font-label-lg border-b-2 border-inverse-primary shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform">Save</button>
+        <div class="px-6 py-4 border-t border-surface-variant flex justify-between items-center bg-surface-container">
+          <button id="delete-btn" type="button" class="text-red-500 font-bold text-sm hover:bg-red-500/10 px-4 py-2 rounded-xl transition-colors">Delete</button>
+          <div class="flex gap-3">
+            <button id="modal-cancel" type="button" class="text-on-surface-variant font-bold text-sm px-4 py-2 hover:bg-surface-variant rounded-xl transition-colors">Cancel</button>
+            <button id="save-btn" type="submit" class="bg-primary text-white font-bold text-sm px-6 py-2 rounded-xl shadow-ambient hover:scale-95 transition-transform">Save</button>
           </div>
         </div>
       </form>

@@ -1,8 +1,10 @@
 let allTopics = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
   fetchTopics();
 
+  document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
   document.getElementById("import-btn").addEventListener("click", importFavs);
   document.getElementById("new-topic-btn").addEventListener("click", openNewModal);
   document.getElementById("modal-close").addEventListener("click", closeModal);
@@ -11,6 +13,37 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("delete-btn").addEventListener("click", deleteTopic);
   document.getElementById("search-input").addEventListener("input", filterTopics);
 });
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  const html = document.documentElement;
+  const themeIcon = document.getElementById("theme-icon");
+  if (savedTheme === "light") {
+    html.classList.remove("dark");
+    html.classList.add("light");
+    if (themeIcon) themeIcon.textContent = "dark_mode";
+  } else {
+    html.classList.remove("light");
+    html.classList.add("dark");
+    if (themeIcon) themeIcon.textContent = "light_mode";
+  }
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const themeIcon = document.getElementById("theme-icon");
+  if (html.classList.contains("dark")) {
+    html.classList.remove("dark");
+    html.classList.add("light");
+    localStorage.setItem("theme", "light");
+    if (themeIcon) themeIcon.textContent = "dark_mode";
+  } else {
+    html.classList.remove("light");
+    html.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+    if (themeIcon) themeIcon.textContent = "light_mode";
+  }
+}
 
 async function fetchTopics() {
   try {
@@ -36,40 +69,37 @@ function renderBoard(topics) {
       const card = document.createElement("div");
       const isCompleted = s === "completed";
       const isSelected = s === "selected";
+      const isInProgress = s === "in_progress";
       
-      let borderClass = "border border-surface-variant hover:border-primary-fixed-dim";
+      let borderClass = "border border-surface-variant hover:border-primary";
       if (isSelected) {
-        borderClass = "border-t-2 border-primary-container border-x border-b border-x-surface-variant border-b-surface-variant";
-      }
-      if (isCompleted) {
-        borderClass += " opacity-75";
+        borderClass = "border-t-4 border-purple-500 border-x border-b border-surface-variant";
+      } else if (isInProgress) {
+        borderClass = "border-t-4 border-amber-500 border-x border-b border-surface-variant";
+      } else if (isCompleted) {
+        borderClass = "border border-surface-variant opacity-75";
       }
 
-      card.className = `bg-surface-container-lowest rounded-xl p-md shadow-ambient hover:shadow-floating transition-all cursor-grab ${borderClass}`;
+      card.className = `bg-surface-container-lowest rounded-2xl p-5 shadow-ambient hover:shadow-floating transition-all cursor-grab ${borderClass}`;
       card.draggable = true;
       card.dataset.id = item.id;
       card.ondragstart = (e) => e.dataTransfer.setData("text/plain", item.id);
       card.ondblclick = () => openEditModal(item);
-      card.onclick = (e) => {
-        if (e.detail === 1) {
-          // single click delayed or double click edit
-        }
-      };
 
       const dateStr = item.created_at ? item.created_at.split("T")[0] : "";
       const platform = item.source_platform ? item.source_platform.toUpperCase() : "GENERAL";
-      const tags = (item.tags || []).map(tag => `<span class="bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded-md">${escapeHtml(tag)}</span>`).join(" ");
+      const tags = (item.tags || []).map(tag => `<span class="bg-surface-container text-on-surface-variant font-bold text-[11px] px-2 py-0.5 rounded-md uppercase tracking-wider">${escapeHtml(tag)}</span>`).join(" ");
 
       card.innerHTML = `
-        <div class="flex justify-between items-center mb-sm">
-          <span class="bg-surface-variant text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-full">${escapeHtml(item.category || "General")}</span>
-          <span class="text-on-surface-variant font-label-sm text-label-sm">${escapeHtml(platform)}</span>
+        <div class="flex justify-between items-center mb-3">
+          <span class="bg-surface-variant text-on-surface font-bold text-xs px-2.5 py-1 rounded-full uppercase tracking-wider">${escapeHtml(item.category || "General")}</span>
+          <span class="text-on-surface-variant font-bold text-xs uppercase tracking-wider">${escapeHtml(platform)}</span>
         </div>
-        <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-xs line-clamp-2 ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${escapeHtml(item.title)}</h3>
-        ${item.hook ? `<p class="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">${escapeHtml(item.hook)}</p>` : ''}
-        <div class="flex justify-between items-end mt-sm">
-          <div class="flex flex-wrap gap-xs">${tags}</div>
-          <span class="text-outline font-label-sm text-label-sm">${escapeHtml(dateStr)}</span>
+        <h3 class="font-bold text-base md:text-lg text-on-surface mb-2 leading-snug tracking-tight ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${escapeHtml(item.title)}</h3>
+        ${item.hook ? `<p class="font-medium text-sm text-on-surface-variant mb-4 line-clamp-2 leading-normal">${escapeHtml(item.hook)}</p>` : ''}
+        <div class="flex justify-between items-end mt-2 pt-2 border-t border-surface-variant/40">
+          <div class="flex flex-wrap gap-1.5">${tags}</div>
+          <span class="text-on-surface-variant font-semibold text-xs tracking-wider">${escapeHtml(dateStr)}</span>
         </div>
       `;
       listEl.appendChild(card);
@@ -100,7 +130,7 @@ async function drop(ev, newStatus) {
 
 async function importFavs() {
   const btn = document.getElementById("import-btn");
-  btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Syncing...`;
+  btn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">sync</span><span>Syncing...</span>`;
   try {
     const res = await fetch("/api/import-favs", { method: "POST" });
     const result = await res.json();
@@ -109,7 +139,7 @@ async function importFavs() {
   } catch (e) {
     alert("Failed to import. Make sure raw favs exist.");
   } finally {
-    btn.innerHTML = `<span class="material-symbols-outlined">sync</span> Sync Social Favs`;
+    btn.innerHTML = `<span class="material-symbols-outlined text-lg">sync</span><span>Sync Social Favs</span>`;
   }
 }
 
