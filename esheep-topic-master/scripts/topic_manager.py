@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 VALID_STATUSES = ["inbox", "selected", "in_progress", "completed"]
+VALID_SOURCE_TYPES = ["hotlist", "social_fav", "original_idea"]
 
 
 class TopicManager:
@@ -48,9 +49,12 @@ class TopicManager:
         outline=None,
         tags=None,
         status="inbox",
+        source_type="original_idea",
     ):
         if status not in VALID_STATUSES:
             raise ValueError(f"Invalid status '{status}'. Must be one of {VALID_STATUSES}")
+        if source_type not in VALID_SOURCE_TYPES:
+            raise ValueError(f"Invalid source_type '{source_type}'. Must be one of {VALID_SOURCE_TYPES}")
 
         now = datetime.now().isoformat()
         topic = {
@@ -65,6 +69,7 @@ class TopicManager:
             "outline": outline if outline is not None else [],
             "tags": tags if tags is not None else [],
             "status": status,
+            "source_type": source_type,
             "created_at": now,
             "updated_at": now,
         }
@@ -74,12 +79,14 @@ class TopicManager:
         self._save(topics)
         return topic
 
-    def get_all(self, status=None, category=None):
+    def get_all(self, status=None, category=None, source_type=None):
         topics = self._load()
         if status:
             topics = [t for t in topics if t.get("status") == status]
         if category:
             topics = [t for t in topics if t.get("category") == category]
+        if source_type:
+            topics = [t for t in topics if t.get("source_type") == source_type]
         return topics
 
     def move(self, topic_id, new_status):
@@ -106,6 +113,8 @@ class TopicManager:
     def update(self, topic_id, updates):
         if "status" in updates and updates["status"] not in VALID_STATUSES:
             raise ValueError(f"Invalid status '{updates['status']}'. Must be one of {VALID_STATUSES}")
+        if "source_type" in updates and updates["source_type"] not in VALID_SOURCE_TYPES:
+            raise ValueError(f"Invalid source_type '{updates['source_type']}'. Must be one of {VALID_SOURCE_TYPES}")
 
         topics = self._load()
         found = False
@@ -144,6 +153,7 @@ def main():
     list_parser = subparsers.add_parser("list", help="List topics")
     list_parser.add_argument("--status", help="Filter by status")
     list_parser.add_argument("--category", help="Filter by category")
+    list_parser.add_argument("--source-type", choices=VALID_SOURCE_TYPES, help="Filter by source type")
 
     # Add sub-command
     add_parser = subparsers.add_parser("add", help="Add a new topic")
@@ -157,6 +167,7 @@ def main():
     add_parser.add_argument("--outline", nargs="*", default=[], help="Outline list")
     add_parser.add_argument("--tags", nargs="*", default=[], help="Tags list")
     add_parser.add_argument("--status", default="inbox", help="Initial status")
+    add_parser.add_argument("--source-type", default="original_idea", choices=VALID_SOURCE_TYPES, help="Source type")
 
     # Move sub-command
     move_parser = subparsers.add_parser("move", help="Move topic to a new status")
@@ -167,7 +178,7 @@ def main():
     tm = TopicManager()
 
     if args.command == "list":
-        topics = tm.get_all(status=args.status, category=args.category)
+        topics = tm.get_all(status=args.status, category=args.category, source_type=args.source_type)
         print(json.dumps(topics, ensure_ascii=False, indent=2))
     elif args.command == "add":
         topic = tm.add(
@@ -181,6 +192,7 @@ def main():
             outline=args.outline,
             tags=args.tags,
             status=args.status,
+            source_type=args.source_type,
         )
         print(f"Topic added successfully: {topic['id']}")
     elif args.command == "move":

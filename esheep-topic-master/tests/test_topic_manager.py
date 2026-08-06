@@ -147,3 +147,43 @@ def test_delete_topic(temp_db):
 
     with pytest.raises(KeyError):
         tm.delete("non_existent_id")
+
+
+def test_add_topic_with_source_type(temp_db):
+    tm = TopicManager(data_file=temp_db)
+    # Test default source_type
+    t1 = tm.add(title="Default Source Type Topic")
+    assert t1.get("source_type") == "original_idea"
+
+    # Test explicit source_type
+    t2 = tm.add(title="Hotlist Topic", source_type="hotlist")
+    assert t2.get("source_type") == "hotlist"
+
+    t3 = tm.add(title="Social Fav Topic", source_type="social_fav")
+    assert t3.get("source_type") == "social_fav"
+
+
+def test_add_topic_invalid_source_type(temp_db):
+    tm = TopicManager(data_file=temp_db)
+    with pytest.raises(ValueError):
+        tm.add(title="Invalid Source Type", source_type="invalid_type")
+
+
+def test_get_all_source_type_filtering(temp_db):
+    tm = TopicManager(data_file=temp_db)
+    t1 = tm.add(title="Topic 1", source_type="hotlist")
+    t2 = tm.add(title="Topic 2", source_type="social_fav")
+    t3 = tm.add(title="Topic 3", source_type="original_idea")
+
+    hotlist_topics = tm.get_all(source_type="hotlist")
+    assert len(hotlist_topics) == 1
+    assert hotlist_topics[0]["id"] == t1["id"]
+
+    social_fav_topics = tm.get_all(source_type="social_fav")
+    assert len(social_fav_topics) == 1
+    assert social_fav_topics[0]["id"] == t2["id"]
+
+    original_topics = tm.get_all(source_type="original_idea")
+    assert len(original_topics) == 1
+    assert original_topics[0]["id"] == t3["id"]
+
