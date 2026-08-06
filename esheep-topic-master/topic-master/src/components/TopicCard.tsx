@@ -100,13 +100,6 @@ export const TopicCard: React.FC<TopicCardProps> = ({
         </div>
       )}
 
-      {/* Hook / Summary */}
-      {topic.hook && (
-        <p className="text-xs text-[#5b4137] dark:text-[#e4bfb1] mb-3 line-clamp-2 leading-relaxed bg-[#fff8f6] dark:bg-[#1f1e1e] p-2 rounded-lg border border-[#f5ded6] dark:border-transparent">
-          {topic.hook}
-        </p>
-      )}
-
       {/* Footer: Tags, Source Link and Date */}
       <div className="flex justify-between items-center pt-1.5 border-t border-[#f5ded6]/60 dark:border-[#353534]/60">
         {topic.source_url ? (
