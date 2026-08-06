@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>esheep-topic-master 选题掌管者</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Action Bar -->
+    <header class="top-bar">
+      <div class="logo-group">
+        <span class="logo-emoji">🐑</span>
+        <div class="logo-text">
+          <h1>esheep-topic-master</h1>
+          <span class="sub-title">选题掌管者</span>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="搜索选题标题、分类、Hook、标签..." autocomplete="off">
+      </div>
+
+      <div class="action-buttons">
+        <button id="import-btn" class="btn btn-secondary">
+          <span class="btn-icon">🔄</span> 一键导入社媒收藏
+        </button>
+        <button id="add-btn" class="btn btn-primary">
+          <span class="btn-icon">➕</span> 新增选题
+        </button>
+      </div>
+    </header>
+
+    <!-- Kanban Board -->
+    <main class="kanban-board">
+      <!-- Inbox Column -->
+      <section class="kanban-column" data-status="inbox">
+        <div class="column-header column-inbox">
+          <div class="column-title">
+            <span class="column-icon">📥</span>
+            <h2>未选中的散落选题</h2>
+          </div>
+          <span class="badge badge-inbox" id="count-inbox">0</span>
+        </div>
+        <div class="cards-container" id="cards-inbox"></div>
+      </section>
+
+      <!-- Selected Column -->
+      <section class="kanban-column" data-status="selected">
+        <div class="column-header column-selected">
+          <div class="column-title">
+            <span class="column-icon">🎯</span>
+            <h2>选中的选题</h2>
+          </div>
+          <span class="badge badge-selected" id="count-selected">0</span>
+        </div>
+        <div class="cards-container" id="cards-selected"></div>
+      </section>
+
+      <!-- In Progress Column -->
+      <section class="kanban-column" data-status="in_progress">
+        <div class="column-header column-in_progress">
+          <div class="column-title">
+            <span class="column-icon">🚧</span>
+            <h2>正在做的选题</h2>
+          </div>
+          <span class="badge badge-in_progress" id="count-in_progress">0</span>
+        </div>
+        <div class="cards-container" id="cards-in_progress"></div>
+      </section>
+
+      <!-- Completed Column -->
+      <section class="kanban-column" data-status="completed">
+        <div class="column-header column-completed">
+          <div class="column-title">
+            <span class="column-icon">✅</span>
+            <h2>做完的选题</h2>
+          </div>
+          <span class="badge badge-completed" id="count-completed">0</span>
+        </div>
+        <div class="cards-container" id="cards-completed"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Topic Detail/Edit Modal -->
+  <div class="modal-backdrop" id="topic-modal" aria-hidden="true">
+    <div class="modal-content glass-panel" role="dialog" aria-labelledby="modal-heading">
+      <div class="modal-header">
+        <h3 id="modal-heading">编辑选题</h3>
+        <button type="button" class="close-btn" id="modal-close-btn" aria-label="关闭">&times;</button>
+      </div>
+      <form id="topic-form" class="modal-form">
+        <input type="hidden" id="topic-id">
+        
+        <div class="form-group">
+          <label for="form-title">选题标题 <span class="required">*</span></label>
+          <input type="text" id="form-title" required placeholder="请输入吸引人的选题标题">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="form-status">选题状态</label>
+            <select id="form-status">
+              <option value="inbox">📥 未选中的散落选题</option>
+              <option value="selected">🎯 选中的选题</option>
+              <option value="in_progress">🚧 正在做的选题</option>
+              <option value="completed">✅ 做完的选题</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="form-category">分类</label>
+            <input type="text" id="form-category" placeholder="例如: AI/剪辑, 知识科普">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="form-source-platform">来源平台</label>
+            <input type="text" id="form-source-platform" placeholder="例如: bilibili, 小红书">
+          </div>
+
+          <div class="form-group flex-2">
+            <label for="form-source-url">来源链接</label>
+            <input type="url" id="form-source-url" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-hook">Hook 钩子 / 黄金三秒</label>
+          <textarea id="form-hook" rows="2" placeholder="提炼吸引观众的开头钩子或核心看点..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="form-angles">切入角度 (每行一个角度)</label>
+          <textarea id="form-angles" rows="3" placeholder="角度1: 实操避坑指南&#10;角度2: 零基础极速上手"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="form-outline">内容大纲 (每行一点)</label>
+          <textarea id="form-outline" rows="4" placeholder="1. 引言与背景&#10;2. 核心观点阐述&#10;3. 实操演示与总结"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="form-tags">标签 (多个标签请用逗号或空格隔开)</label>
+          <input type="text" id="form-tags" placeholder="例如: AI, 爆款文案, 剪辑">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="delete-topic-btn" class="btn btn-danger hidden">
+            <span>🗑️</span> 删除选题
+          </button>
+          <div class="right-buttons">
+            <button type="button" id="cancel-modal-btn" class="btn btn-secondary">取消</button>
+            <button type="submit" class="btn btn-primary">
+              <span>💾</span> 保存选题
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

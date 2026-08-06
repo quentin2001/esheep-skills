@@ -174,4 +174,23 @@ def test_serve_static_file(server_env):
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 200
         content = resp.read().decode("utf-8")
-        assert "<h1>eSheep Topic Master</h1>" in content
+        assert "<h1>eSheep Topic Master</h1>" in content or "esheep-topic-master" in content
+
+
+def test_serve_default_web_dir(tmp_path):
+    # Test server serving the default BASE_DIR / web directory
+    db_path = tmp_path / "topics.json"
+    httpd = run_server(port=0, db_path=db_path, web_dir=None, block=False)
+    port = httpd.server_address[1]
+    base_url = f"http://127.0.0.1:{port}"
+
+    try:
+        with urllib.request.urlopen(f"{base_url}/") as resp:
+            assert resp.status == 200
+            content = resp.read().decode("utf-8")
+            assert "esheep-topic-master 选题掌管者" in content
+            assert "cards-inbox" in content
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
