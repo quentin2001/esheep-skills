@@ -73,11 +73,20 @@ export const TopicCard: React.FC<TopicCardProps> = ({
         <div className="flex items-center gap-1.5">
           {renderSourceBadge()}
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold">
-            {formatPlatform(topic.platform)}
-          </span>
-          <GripVertical className="w-4 h-4 text-[#5b4137]/40 group-hover:text-[#251914] dark:text-[#e4bfb1]/40 dark:group-hover:text-[#e5e2e1] transition-colors ml-1" />
+        <div className="flex items-center gap-1.5">
+          {topic.source_url && (
+            <a
+              href={topic.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[#ff5f00] hover:underline text-xs font-bold flex items-center gap-0.5 mr-1"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>源链接</span>
+            </a>
+          )}
+          <GripVertical className="w-4 h-4 text-[#5b4137]/40 group-hover:text-[#251914] dark:text-[#e4bfb1]/40 dark:group-hover:text-[#e5e2e1] transition-colors" />
         </div>
       </div>
 
@@ -100,31 +109,11 @@ export const TopicCard: React.FC<TopicCardProps> = ({
         </div>
       )}
 
-      {/* Footer: Tags, Source Link and Date */}
+      {/* Footer: Platform Name and Date */}
       <div className="flex justify-between items-center pt-1.5 border-t border-[#f5ded6]/60 dark:border-[#353534]/60">
-        {topic.source_url ? (
-          <a
-            href={topic.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="text-[#ff5f00] hover:underline text-xs font-bold flex items-center gap-1"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>源链接</span>
-          </a>
-        ) : (
-          <div className="flex flex-wrap gap-1.5 max-w-[60%]">
-            {topic.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="bg-[#fff8f6] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] border border-[#f5ded6] dark:border-transparent font-medium text-[11px] px-2 py-0.5 rounded-md"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <span className="text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold">
+          {formatPlatform(topic.platform)}
+        </span>
         <span className="text-xs text-[#a63b00] dark:text-[#ab8a7d] whitespace-nowrap font-semibold">
           {topic.date}
         </span>
