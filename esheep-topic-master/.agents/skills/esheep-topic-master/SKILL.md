@@ -71,13 +71,24 @@ Use `topic_manager.py` for direct command-line query and state transitions:
   python scripts/topic_manager.py move --id <TOPIC_ID> --status completed
   ```
 
-### 5. REST API Overview
+### 5. Auto-Archiving Completed Topics
+Archives completed topics older than N days (default 30 days) from `data/topics.json` into `data/archive_topics.json` with deduplication:
+```bash
+python scripts/archive_topics.py --days 30
+```
+- Custom path usage:
+```bash
+python scripts/archive_topics.py --days 30 --db-path data/topics.json --archive-path data/archive_topics.json
+```
+
+### 6. REST API Overview
 - `GET /api/topics?status=<status>&category=<category>&source_type=<source_type>` - List topics
 - `POST /api/topics` - Add a new topic (JSON payload)
 - `PUT /api/topics/<id>` - Update topic fields or status (JSON payload)
 - `DELETE /api/topics/<id>` - Delete a topic
 - `POST /api/import-favs` - Trigger favs sync (`{"favs_path": "..."}`)
 - `POST /api/fetch-hotlist` - Trigger hotlist fetch (`{"sources": ["zhihu", "weibo", "aihot"], "limit": 15, "ingest": true}`)
+- `POST /api/topics/archive` - Trigger auto-archiving (`{"days": 30}`)
 
 ## Quick Reference
 | Status | Description | Typical Action |

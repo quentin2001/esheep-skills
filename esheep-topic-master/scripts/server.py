@@ -14,6 +14,7 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 
 from topic_manager import TopicManager
 from import_favs import import_from_favs
+from archive_topics import archive_completed_topics
 
 
 class ThreadedTCPServer(ThreadingTCPServer):
@@ -121,6 +122,18 @@ class TopicRequestHandler(SimpleHTTPRequestHandler):
             favs_path = payload.get("favs_path")
             imported_count = import_from_favs(favs_path=favs_path, db_path=self.db_path)
             self._send_json({"imported": imported_count}, status_code=200)
+            return
+
+        elif path == "/api/topics/archive":
+            try:
+                payload = self._read_json_body()
+            except Exception:
+                payload = {}
+
+            days = payload.get("days", 30)
+            archive_path = payload.get("archive_path")
+            archived_count = archive_completed_topics(days=days, db_path=self.db_path, archive_path=archive_path)
+            self._send_json({"archived": archived_count}, status_code=200)
             return
 
         self._send_error("Not Found", status_code=404)

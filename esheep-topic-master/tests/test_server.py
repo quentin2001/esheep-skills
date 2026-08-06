@@ -194,3 +194,39 @@ def test_serve_default_web_dir(tmp_path):
         httpd.shutdown()
         httpd.server_close()
 
+
+def test_post_archive_topics(server_env, tmp_path):
+    from datetime import datetime, timedelta
+
+    # Create old completed topic in db_path
+    old_date = (datetime.now() - timedelta(days=40)).isoformat()
+    topics = [
+        {
+            "id": "archived-1",
+            "title": "Old Topic",
+            "status": "completed",
+            "updated_at": old_date,
+        },
+        {
+            "id": "active-1",
+            "title": "Active Topic",
+            "status": "inbox",
+            "updated_at": old_date,
+        },
+    ]
+    server_env["db_path"].write_text(json.dumps(topics, ensure_ascii=False), encoding="utf-8")
+
+    archive_path = tmp_path / "custom_archive.json"
+    url_archive = f"{server_env['base_url']}/api/topics/archive"
+
+    status, data = make_request(url_archive, method="POST", data={"days": 30, "archive_path": str(archive_path)})
+    assert status == 200
+    assert data["archived"] == 1
+
+    # Verify active topics remaining
+    status, active_topics = make_request(f"{server_env['base_url']}/api/topics")
+    assert status == 200
+    assert len(active_topics) == 1
+    assert active_topics[0]["id"] == "active-1"
+
+
