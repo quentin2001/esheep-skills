@@ -4,7 +4,6 @@ import { INITIAL_TOPICS } from './data/initialTopics';
 import { Header } from './components/Header';
 import { KanbanBoard } from './components/KanbanBoard';
 import { EditTopicModal } from './components/EditTopicModal';
-import { NewTopicModal } from './components/NewTopicModal';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -112,19 +111,8 @@ export default function App() {
     }
   };
 
-  // Search & Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  // Extract unique categories
-  const categories = Array.from(
-    new Set(topics.map((t) => t.category).filter(Boolean))
-  );
-
   // Modals state
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
-  const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
-  const [newTopicInitialStatus, setNewTopicInitialStatus] = useState<TopicStatus>('unselected');
 
   // Handlers
   const handleMoveStatus = (id: string, newStatus: TopicStatus) => {
@@ -155,45 +143,20 @@ export default function App() {
     });
   };
 
-  const handleAddTopic = (newTopic: Topic) => {
-    setTopics((prev) => {
-      const updated = [newTopic, ...prev];
-      syncToBackend(updated);
-      return updated;
-    });
-  };
-
-  const handleQuickAdd = (status: TopicStatus) => {
-    setNewTopicInitialStatus(status);
-    setIsNewTopicOpen(true);
-  };
-
   return (
     <div className="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] min-h-screen flex flex-col font-sans selection:bg-amber-200 dark:selection:bg-amber-900 selection:text-amber-900 transition-colors duration-200">
       {/* Top Header */}
       <Header
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        categories={categories}
         themeMode={themeMode}
         onThemeModeChange={setThemeMode}
-        onOpenNewTopic={() => {
-          setNewTopicInitialStatus('unselected');
-          setIsNewTopicOpen(true);
-        }}
       />
 
       {/* Main Kanban Board */}
       <KanbanBoard
         topics={topics}
-        searchQuery={searchQuery}
-        selectedCategory={selectedCategory}
         onEditTopic={(t) => setEditingTopic(t)}
         onMoveStatus={handleMoveStatus}
         onDropTopic={handleDropTopic}
-        onQuickAdd={handleQuickAdd}
       />
 
       {/* Modals */}
@@ -203,13 +166,6 @@ export default function App() {
         onClose={() => setEditingTopic(null)}
         onSave={handleSaveTopic}
         onDelete={handleDeleteTopic}
-      />
-
-      <NewTopicModal
-        isOpen={isNewTopicOpen}
-        initialStatus={newTopicInitialStatus}
-        onClose={() => setIsNewTopicOpen(false)}
-        onAdd={handleAddTopic}
       />
     </div>
   );
