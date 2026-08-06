@@ -4,6 +4,7 @@ import { INITIAL_TOPICS } from './data/initialTopics';
 import { Header } from './components/Header';
 import { KanbanBoard } from './components/KanbanBoard';
 import { EditTopicModal } from './components/EditTopicModal';
+import { Trash2 } from 'lucide-react';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -26,6 +27,27 @@ export default function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     return (localStorage.getItem('topic_master_theme_mode') as ThemeMode) || 'system';
   });
+
+  // Drag to delete zone state
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
+  const [isOverDeleteZone, setIsOverDeleteZone] = useState(false);
+
+  useEffect(() => {
+    const handleDragStart = () => {
+      setIsDraggingCard(true);
+    };
+    const handleDragEnd = () => {
+      setIsDraggingCard(false);
+      setIsOverDeleteZone(false);
+    };
+
+    window.addEventListener('dragstart', handleDragStart);
+    window.addEventListener('dragend', handleDragEnd);
+    return () => {
+      window.removeEventListener('dragstart', handleDragStart);
+      window.removeEventListener('dragend', handleDragEnd);
+    };
+  }, []);
 
   // Sync theme class on <html> & <body>
   useEffect(() => {
@@ -148,7 +170,51 @@ export default function App() {
   };
 
   return (
-    <div className="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] min-h-screen flex flex-col font-sans selection:bg-amber-200 dark:selection:bg-amber-900 selection:text-amber-900 transition-colors duration-200">
+    <div className="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] min-h-screen flex flex-col font-sans selection:bg-amber-200 dark:selection:bg-amber-900 selection:text-amber-900 transition-colors duration-200 relative">
+      {/* Left Drag to Delete Zone */}
+      {isDraggingCard && (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            setIsOverDeleteZone(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsOverDeleteZone(false);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            const topicId = e.dataTransfer.getData('text/plain');
+            if (topicId) {
+              handleDeleteTopic(topicId);
+            }
+            setIsDraggingCard(false);
+            setIsOverDeleteZone(false);
+          }}
+          className={`fixed left-0 top-0 bottom-0 z-40 w-36 md:w-56 flex flex-col items-center justify-center transition-all duration-300 ${
+            isOverDeleteZone
+              ? 'bg-gradient-to-r from-red-600/90 via-red-500/50 to-transparent border-r-4 border-red-500 shadow-2xl backdrop-blur-sm'
+              : 'bg-gradient-to-r from-red-500/40 via-red-500/15 to-transparent backdrop-blur-[1px]'
+          }`}
+        >
+          <div
+            className={`flex flex-col items-center gap-3.5 p-4 rounded-2xl transition-all duration-200 ${
+              isOverDeleteZone
+                ? 'scale-125 text-white animate-bounce'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            <div className={`p-4 rounded-full ${isOverDeleteZone ? 'bg-red-600 shadow-lg' : 'bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800'}`}>
+              <Trash2 className="w-8 h-8 md:w-10 md:h-10 drop-shadow" />
+            </div>
+            <span className="font-bold text-xs md:text-sm tracking-wider whitespace-nowrap drop-shadow">
+              {isOverDeleteZone ? '松开立即删除' : '拖至此处删除'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Top Header */}
       <Header
         themeMode={themeMode}
