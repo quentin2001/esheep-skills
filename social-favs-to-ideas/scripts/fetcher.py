@@ -87,11 +87,14 @@ def extract_items_from_json(platform: str, json_data: dict, action_type: str = "
     return items
 
 def is_cdp_port_active(port: int = CDP_PORT) -> bool:
-    try:
-        req = urllib.request.urlopen(f"http://127.0.0.1:{port}/json/version", timeout=1)
-        return req.status == 200
-    except Exception:
-        return False
+    for host in ["localhost", "127.0.0.1"]:
+        try:
+            req = urllib.request.urlopen(f"http://{host}:{port}/json/version", timeout=1)
+            if req.status == 200:
+                return True
+        except Exception:
+            pass
+    return False
 
 def check_account_logged_in(platform: str, page) -> bool:
     try:
@@ -116,6 +119,26 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cd
     with sync_playwright() as p:
         browser = None
         context = None
+
+        if use_cdp and not is_cdp_port_active(CDP_PORT):
+            print(f"[*] 端口 127.0.0.1:{CDP_PORT} 未激活，尝试自动唤起调试模式 Chrome...")
+            chrome_exe = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+            if not os.path.exists(chrome_exe):
+                chrome_exe = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
+
+            user_dir = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\User Data CDP")
+            cmd = f'"{chrome_exe}" --remote-debugging-port={CDP_PORT} --remote-debugging-address=0.0.0.0 --user-data-dir="{user_dir}"'
+            try:
+                import subprocess
+                subprocess.Popen(cmd, shell=True)
+                print(f"[+] 已在后台拉起调试端口 Chrome，等待连接 127.0.0.1:{CDP_PORT}...")
+                import time
+                for _ in range(10):
+                    time.sleep(1)
+                    if is_cdp_port_active(CDP_PORT):
+                        break
+            except Exception as e:
+                print(f"[!] 自动拉起 Chrome 失败: {e}")
 
         if use_cdp and is_cdp_port_active(CDP_PORT):
             print(f"[+] 成功通过 CDP 直连端口 127.0.0.1:{CDP_PORT}")
@@ -277,6 +300,88 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cd
                     for _ in range(2):
                         page.evaluate("window.scrollBy(0, 800)")
                         page.wait_for_timeout(1000)
+
+            elif platform == "x":
+                # 1. 真实 Bookmarks (书签页)
+                print("[*] 导航至 X 官方书签页: https://x.com/i/bookmarks")
+                page.goto("https://x.com/i/bookmarks", wait_until="domcontentloaded")
+                try:
+                    page.wait_for_selector("article[data-testid='tweet']", timeout=5000)
+                except Exception:
+                    pass
+
+                for _ in range(3):
+                    page.evaluate("window.scrollBy(0, 800)")
+                    page.wait_for_timeout(1000)
+
+                articles_bm = page.query_selector_all("article[data-testid='tweet']")
+                for art in articles_bm:
+                    try:
+                        status_a = art.query_selector("a[href*='/status/']")
+                        if status_a:
+                            href_a = status_a.get_attribute("href") or ""
+                            sm = re.search(r'/status/(\d+)', href_a)
+                            if sm:
+                                tweet_id = sm.group(1)
+                                text_elem = art.query_selector("[data-testid='tweetText']")
+                                text_val = text_elem.inner_text().strip().replace("\n", " ") if text_elem else art.inner_text().strip().replace("\n", " ")
+                                full_url = f"https://x.com{href_a}" if href_a.startswith("/") else href_a
+                                if text_val and len(text_val) > 2:
+                                    items.append(parse_raw_item({
+                                        "platform": "x",
+                                        "action_type": "favorite",
+                                        "id": tweet_id,
+                                        "title": text_val[:120],
+                                        "url": full_url
+                                    }))
+                    except Exception:
+                        pass
+
+                # 2. 真实 Likes (点赞/喜欢页)
+                print("[*] 前往 X 个人主页并进入 Likes 标签...")
+                page.goto("https://x.com/i/user", wait_until="domcontentloaded")
+                page.wait_for_timeout(2000)
+
+                profile_a = page.query_selector("a[data-testid='AppTabBar_Profile_Link']") or page.query_selector("a[href*='/status/']")
+                user_handle = None
+                if profile_a:
+                    href_p = profile_a.get_attribute("href") or ""
+                    if href_p and href_p != "/":
+                        user_handle = href_p.strip("/")
+
+                if user_handle:
+                    print(f"[*] 导航至 X 真实 Likes 页面: https://x.com/{user_handle}/likes")
+                    page.goto(f"https://x.com/{user_handle}/likes", wait_until="domcontentloaded")
+                    try:
+                        page.wait_for_selector("article[data-testid='tweet']", timeout=5000)
+                    except Exception:
+                        pass
+                    for _ in range(3):
+                        page.evaluate("window.scrollBy(0, 800)")
+                        page.wait_for_timeout(1000)
+
+                    articles_lk = page.query_selector_all("article[data-testid='tweet']")
+                    for art in articles_lk:
+                        try:
+                            status_a = art.query_selector("a[href*='/status/']")
+                            if status_a:
+                                href_a = status_a.get_attribute("href") or ""
+                                sm = re.search(r'/status/(\d+)', href_a)
+                                if sm:
+                                    tweet_id = sm.group(1)
+                                    text_elem = art.query_selector("[data-testid='tweetText']")
+                                    text_val = text_elem.inner_text().strip().replace("\n", " ") if text_elem else art.inner_text().strip().replace("\n", " ")
+                                    full_url = f"https://x.com{href_a}" if href_a.startswith("/") else href_a
+                                    if text_val and len(text_val) > 2:
+                                        items.append(parse_raw_item({
+                                            "platform": "x",
+                                            "action_type": "like",
+                                            "id": tweet_id,
+                                            "title": text_val[:120],
+                                            "url": full_url
+                                        }))
+                        except Exception:
+                            pass
 
         except Exception as err:
             print(f"[!] {platform} 页面导航提示: {err}")

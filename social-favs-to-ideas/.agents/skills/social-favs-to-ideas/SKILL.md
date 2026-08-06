@@ -7,9 +7,12 @@ description: Use when scanning bookmarked or liked social media posts from Bilib
 
 Transform raw social media likes and favorites into an actionable self-media topic database.
 
-## Overview
+## CDP Browser Connection Protocol (Zero-Re-Login)
 
-This skill guides the agent through fetching user favorites/likes across social platforms (Bilibili, Zhihu, Xiaohongshu, Douyin, X/Twitter), parsing raw data stored in `data/raw_favs.json`, reverse-engineering viral hooks and topic angles, and appending structured content ideas to `data/content_ideas_database.md`.
+When running scraper commands:
+1. The engine checks `http://localhost:9222`.
+2. If inactive, the engine automatically executes `chrome.exe --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --user-data-dir="%LOCALAPPDATA%\Google\Chrome\User Data CDP"` to launch the CDP-enabled browser instance seamlessly in the background without disturbing active user tabs.
+3. No manual CLI input is required from the user. All account sessions (Bilibili, Zhihu, Xiaohongshu, Douyin, X) share this unified CDP connection.
 
 ## Conversational Agent Workflow
 
