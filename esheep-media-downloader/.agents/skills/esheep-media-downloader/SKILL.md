@@ -11,16 +11,16 @@ description: Use when downloading video or audio from YouTube, Bilibili, TikTok,
 
 ## Quick Reference
 
-All Python helper commands use `.agents/skills/esheep-media-downloader/scripts/downloader.py`.
+All Python helper commands use `esheep-media-downloader/scripts/downloader.py` (or `esheep-media-downloader/.agents/skills/esheep-media-downloader/scripts/downloader.py`).
 
 | Operation | Command | Description |
 |---|---|---|
-| **Get Media Info** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py info <URL>` | Extract video title, duration, uploader, thumbnail, and available resolutions JSON |
-| **Download Video** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py download <URL> --quality 1080p` | Download video at specified resolution (e.g. 1080p, 720p, or best) |
-| **Clip Section** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py download <URL> --start HH:MM:SS --end HH:MM:SS` | Download and cut a specific time section of video/audio |
-| **Extract MP3** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py download <URL> --format mp3` | Extract audio-only stream as MP3 file |
-| **Download Subtitles** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py subtitle <URL> --lang zh-Hans,en` | Download subtitles/transcripts in specified languages (VTT/SRT) |
-| **Expand Playlist** | `python .agents/skills/esheep-media-downloader/scripts/downloader.py playlist <URL>` | Extract list of entry URLs from a playlist |
+| **Get Media Info** | `python esheep-media-downloader/scripts/downloader.py info <URL>` | Extract video title, duration, uploader, thumbnail, and available resolutions JSON |
+| **Download Video** | `python esheep-media-downloader/scripts/downloader.py download <URL> --quality 1080p` | Download video at specified resolution (e.g. 1080p, 720p, or best) |
+| **Clip Section** | `python esheep-media-downloader/scripts/downloader.py download <URL> --start HH:MM:SS --end HH:MM:SS` | Download and cut a specific time section of video/audio |
+| **Extract MP3** | `python esheep-media-downloader/scripts/downloader.py download <URL> --format mp3` | Extract audio-only stream as MP3 file |
+| **Download Subtitles** | `python esheep-media-downloader/scripts/downloader.py subtitle <URL> --lang zh-Hans,en` | Download subtitles/transcripts in specified languages (VTT/SRT) |
+| **Expand Playlist** | `python esheep-media-downloader/scripts/downloader.py playlist <URL>` | Extract list of entry URLs from a playlist |
 
 ## Direct CLI Fallback
 
