@@ -24,7 +24,18 @@ def _fetch_json(url, custom_headers=None, timeout=10):
     req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = resp.read().decode("utf-8", errors="replace")
+            raw = resp.read()
+            encoding = "utf-8"
+            content_type = resp.headers.get("Content-Type", "")
+            if "charset=" in content_type.lower():
+                encoding = content_type.lower().split("charset=")[-1].split(";")[0].strip()
+            try:
+                data = raw.decode(encoding)
+            except Exception:
+                try:
+                    data = raw.decode("utf-8")
+                except Exception:
+                    data = raw.decode("gbk", errors="ignore")
             return json.loads(data)
     except Exception:
         return None
@@ -198,23 +209,26 @@ class ToutiaoHotAdapter:
 
 
 class BilibiliHotAdapter:
-    URL = "https://api.bilibili.com/x/web-interface/popular?ps=20&pn=1"
+    URL_POPULAR = "https://api.bilibili.com/x/web-interface/popular?ps=20&pn=1"
+    URL_TECH = "https://api.bilibili.com/x/web-interface/ranking/v2?rid=188"
 
     def fetch(self, limit=15):
-        resp_data = _fetch_json(self.URL)
-        if not resp_data or not isinstance(resp_data, dict):
-            return []
+        raw_items = []
+        
+        # 1. Fetch Tech ranking first
+        resp_tech = _fetch_json(self.URL_TECH)
+        if resp_tech and isinstance(resp_tech, dict):
+            raw_items.extend(resp_tech.get("data", {}).get("list", []))
 
-        data_obj = resp_data.get("data", {})
-        if not isinstance(data_obj, dict):
-            return []
-
-        list_items = data_obj.get("list", [])
-        if not isinstance(list_items, list):
-            return []
+        # 2. Fetch popular feed
+        resp_pop = _fetch_json(self.URL_POPULAR)
+        if resp_pop and isinstance(resp_pop, dict):
+            raw_items.extend(resp_pop.get("data", {}).get("list", []))
 
         results = []
-        for item in list_items:
+        seen_bvids = set()
+
+        for item in raw_items:
             if len(results) >= limit:
                 break
             if not isinstance(item, dict):
@@ -223,6 +237,11 @@ class BilibiliHotAdapter:
             if not title:
                 continue
             bvid = item.get("bvid") or ""
+            if bvid and bvid in seen_bvids:
+                continue
+            if bvid:
+                seen_bvids.add(bvid)
+
             url = f"https://www.bilibili.com/video/{bvid}" if bvid else item.get("short_link", "")
             desc = item.get("desc") or item.get("rcmd_reason", {}).get("content", "")
             results.append({
@@ -232,23 +251,136 @@ class BilibiliHotAdapter:
                 "source_platform": "bilibili",
                 "source_type": "hotlist",
                 "hook": desc,
-                "category": item.get("tname") or "B站热门",
+                "category": item.get("tname") or "B站科技",
             })
         return results
 
 
+class BaiduHotAdapter:
+    URL = "https://top.baidu.com/api/board?platform=down&tab=realtime"
+
+    def fetch(self, limit=15):
+        resp_data = _fetch_json(self.URL)
+        if not resp_data or not isinstance(resp_data, dict):
+            return []
+
+        cards = resp_data.get("data", {}).get("cards", [])
+        if not cards or not isinstance(cards, list):
+            return []
+
+        raw_items = cards[0].get("content", [])
+        if not isinstance(raw_items, list):
+            return []
+
+        results = []
+        for item in raw_items:
+            if len(results) >= limit:
+                break
+            if not isinstance(item, dict):
+                continue
+            title = item.get("word") or ""
+            if not title:
+                continue
+            url = item.get("url") or item.get("rawUrl") or ""
+            desc = item.get("desc") or item.get("hotScore") or ""
+            results.append({
+                "title": title,
+                "source_title": title,
+                "source_url": url,
+                "source_platform": "baidu",
+                "source_type": "hotlist",
+                "hook": f"热度: {desc}" if desc else "",
+                "category": "百度热搜",
+            })
+        return results
+
+
+class XiaohongshuHotAdapter:
+    URL = "https://www.xiaohongshu.com/explore"
+
+    def fetch(self, limit=15):
+        resp_data = _fetch_json("https://tenapi.cn/v2/xhshot")
+        if not resp_data or not isinstance(resp_data, dict):
+            return []
+
+        raw_items = resp_data.get("data", [])
+        if not isinstance(raw_items, list):
+            return []
+
+        results = []
+        for item in raw_items:
+            if len(results) >= limit:
+                break
+            if not isinstance(item, dict):
+                continue
+            title = item.get("name") or item.get("word") or ""
+            if not title:
+                continue
+            url = item.get("url") or f"https://www.xiaohongshu.com/search_result?keyword={urllib.parse.quote(title)}"
+            hot = item.get("hot") or item.get("views") or ""
+            results.append({
+                "title": title,
+                "source_title": title,
+                "source_url": url,
+                "source_platform": "xiaohongshu",
+                "source_type": "hotlist",
+                "hook": f"热度: {hot}" if hot else "",
+                "category": "小红书热搜",
+            })
+        return results
+
+
+class DouyinHotAdapter:
+    URL = "https://www.douyin.com/aweme/v1/web/hot/search/list/"
+
+    def fetch(self, limit=15):
+        resp_data = _fetch_json(self.URL)
+        if not resp_data or not isinstance(resp_data, dict):
+            return []
+
+        word_list = resp_data.get("data", {}).get("word_list", [])
+        if not isinstance(word_list, list):
+            return []
+
+        results = []
+        for item in word_list:
+            if len(results) >= limit:
+                break
+            if not isinstance(item, dict):
+                continue
+            word = item.get("word") or ""
+            if not word:
+                continue
+            hot_value = item.get("hot_value") or ""
+            results.append({
+                "title": word,
+                "source_title": word,
+                "source_url": f"https://www.douyin.com/search/{urllib.parse.quote(word)}",
+                "source_platform": "douyin",
+                "source_type": "hotlist",
+                "hook": f"热度: {hot_value}" if hot_value else "",
+                "category": "抖音热榜",
+            })
+        return results
+
+
+DEFAULT_SOURCES = ["aihot", "weibo", "zhihu", "xiaohongshu", "douyin"]
+
 ADAPTER_MAP = {
-    "zhihu": ZhihuHotAdapter,
-    "weibo": WeiboHotAdapter,
     "aihot": AIHotAdapter,
+    "weibo": WeiboHotAdapter,
+    "zhihu": ZhihuHotAdapter,
+    "xiaohongshu": XiaohongshuHotAdapter,
+    "douyin": DouyinHotAdapter,
     "toutiao": ToutiaoHotAdapter,
     "bilibili": BilibiliHotAdapter,
+    "baidu": BaiduHotAdapter,
 }
 
 
 def fetch_hotlist(sources=None, limit=15):
     if sources is None:
-        sources = ["zhihu", "weibo", "aihot"]
+        sources = DEFAULT_SOURCES
 
     if isinstance(sources, str):
         sources = [s.strip() for s in sources.split(",") if s.strip()]
@@ -331,11 +463,11 @@ def main():
         except Exception:
             pass
 
-    parser = argparse.ArgumentParser(description="Fetch hotlist topics from Zhihu, Weibo, AIHot, Toutiao, Bilibili.")
+    parser = argparse.ArgumentParser(description="Fetch hotlist topics from AIHot, Weibo, Zhihu, Xiaohongshu, Douyin, Toutiao, Bilibili, Baidu.")
     parser.add_argument(
         "--sources",
-        default="zhihu,weibo,aihot",
-        help="Comma-separated sources to fetch (zhihu, weibo, aihot)",
+        default="aihot,weibo,zhihu,xiaohongshu,douyin",
+        help="Comma-separated sources to fetch (aihot, weibo, zhihu, xiaohongshu, douyin, toutiao, bilibili, baidu)",
     )
     parser.add_argument(
         "--limit",

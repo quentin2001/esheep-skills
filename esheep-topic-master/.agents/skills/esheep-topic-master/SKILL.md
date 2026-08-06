@@ -31,13 +31,15 @@ Whenever the user starts discussing topics, querying topics, or adding ideas in 
   - `--web-dir PATH`: Custom path to web static files.
 
 ### 2. Multi-Adapter Hotlist Fetching
-Fetches trending hot topics from Zhihu, Weibo, and AIHot, with optional auto-ingestion into `inbox` (`source_type="hotlist"`).
+Fetches trending hot topics with default 5-source strategy (`aihot`, `weibo`, `zhihu`, `xiaohongshu`, `douyin`) and optional ingestion into `inbox` (`source_type="hotlist"`).
+- Default execution (5 core sources):
 ```bash
-python scripts/fetch_hotlist.py --sources zhihu,weibo,aihot --limit 15 --ingest
+python scripts/fetch_hotlist.py --sources aihot,weibo,zhihu,xiaohongshu,douyin --limit 15 --ingest
 ```
+- Full platform catalog supported: `aihot`, `weibo`, `zhihu`, `xiaohongshu`, `douyin`, `toutiao`, `bilibili`, `baidu`.
 - Print JSON without ingesting:
 ```bash
-python scripts/fetch_hotlist.py --sources zhihu,weibo --limit 10
+python scripts/fetch_hotlist.py --sources aihot,weibo,zhihu --limit 10
 ```
 
 ### 3. Auto Sync from Social Favorites
