@@ -17,7 +17,17 @@ description: Use when managing topic lifecycles, serving the web kanban board, s
 ## 3 Topic Source Taxonomy
 1. `hotlist`: Hot topic items collected automatically from platforms (Zhihu, Weibo, AIHot).
 2. `social_fav`: Social media favorites/bookmarks imported from tools like `esheep-social-favs-copilot`.
-3. `original_idea`: Native or manually added creative ideas.
+3. `original_idea`: Native or manually added creative ideas (including OCR-extracted screenshot inspirations).
+
+## Zero-Image Storage Screenshot Workflow (截图灵感“即抛即抠，文本化入库”)
+When the user sends a screenshot or image in chat to add as a topic:
+1. **Never store image files locally**: The system database (`topics.json`) stores 100% pure text structured data.
+2. **Instant Agent Vision OCR & Extraction**: The Agent uses vision capabilities to immediately extract:
+   - Topic Title (选题标题)
+   - Hook / Core Insights (爆点观点与摘要)
+   - Source Platform (识别原截图平台，如“小红书截图”、“微信群截图”)
+3. **Ingest Pure Text Card**: Agent calls `TopicManager.add(source_type="original_idea", tag="📸 截图灵感")` to add the pure text card to `inbox`.
+4. **Fallback for Non-Multimodal Models**: If using a text-only LLM, the user or agent can use system native OCR (e.g. `tesseract` / `Windows.Media.Ocr`) or copy-paste OCR text directly.
 
 ## Core Workflows
 
