@@ -25,7 +25,12 @@ class TopicRequestHandler(SimpleHTTPRequestHandler):
     web_dir = None
 
     def __init__(self, *args, **kwargs):
-        web_directory = str(self.web_dir) if self.web_dir else str(BASE_DIR / "web")
+        if self.web_dir:
+            web_directory = str(self.web_dir)
+        elif (BASE_DIR / "topic-master" / "dist").exists():
+            web_directory = str(BASE_DIR / "topic-master" / "dist")
+        else:
+            web_directory = str(BASE_DIR / "web")
         super().__init__(*args, directory=web_directory, **kwargs)
 
     def _send_json(self, data, status_code=200):
@@ -95,6 +100,21 @@ class TopicRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json(topic, status_code=201)
             except ValueError as e:
                 self._send_error(str(e), status_code=400)
+            return
+
+        elif path == "/api/topics/sync":
+            try:
+                payload = self._read_json_body()
+            except Exception as e:
+                self._send_error(f"Invalid JSON body: {e}", status_code=400)
+                return
+
+            if isinstance(payload, list):
+                tm = TopicManager(data_file=self.db_path)
+                tm.save_all(payload)
+                self._send_json({"success": True, "count": len(payload)}, status_code=200)
+            else:
+                self._send_error("Expected list of topics", status_code=400)
             return
 
         elif path == "/api/import-favs":
