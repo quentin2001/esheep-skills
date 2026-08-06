@@ -1,154 +1,18 @@
 <!doctype html>
-<html lang="zh-CN" class="light">
+<html lang="en" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Topic Master - 选题掌管者</title>
+    <title>Topic Master - Kanban Board</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <script type="module" crossorigin src="/assets/index-B4jaFt2K.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B1zAWV1o.css">
   </head>
-  <body class="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
-    <!-- Header -->
-    <header className="bg-[#fff8f6] dark:bg-[#201f1f] shadow-sm flex justify-between items-center w-full px-4 md:px-12 py-3.5 mx-auto z-10 sticky top-0 border-b border-[#f5ded6] dark:border-[#353534]">
-      <div className="flex items-center gap-3">
-        <h1 className="font-extrabold text-2xl md:text-3xl text-[#ff5f00] dark:text-[#ffb599] tracking-tight font-heading">
-          Topic Master
-        </h1>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <button
-          id="theme-toggle-btn"
-          title="切换主题模式 (Light / Dark / System)"
-          className="p-2.5 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center justify-center"
-        >
-          <span id="theme-icon" className="material-symbols-outlined text-amber-700 dark:text-[#ffb599]">light_mode</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Kanban Grid -->
-    <main className="flex-1 p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1600px] mx-auto items-start">
-      <!-- Column 1: Unselected / Inbox -->
-      <div className="column-container w-full flex flex-col gap-3.5 p-2.5 rounded-2xl transition-all duration-200" data-status="inbox">
-        <div className="flex justify-between items-center bg-[#ffe9e2] dark:bg-[#201f1f] px-4 py-3 rounded-xl shadow-sm border-t-4 border-[#e4bfb1] dark:border-[#5b4137]">
-          <h2 className="font-bold text-lg md:text-xl text-[#251914] dark:text-[#e5e2e1] tracking-tight">Unselected Topics</h2>
-          <span id="count-inbox" className="bg-[#fff8f6] dark:bg-[#2a2a2a] text-[#5b4137] dark:text-[#e4bfb1] font-bold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">0</span>
-        </div>
-        <div id="list-inbox" className="card-list flex flex-col gap-3.5 overflow-y-auto pb-6 min-h-[160px] p-0.5"></div>
-      </div>
-
-      <!-- Column 2: Selected -->
-      <div className="column-container w-full flex flex-col gap-3.5 p-2.5 rounded-2xl transition-all duration-200" data-status="selected">
-        <div className="flex justify-between items-center bg-[#ffe9e2] dark:bg-[#201f1f] px-4 py-3 rounded-xl shadow-sm border-t-4 border-[#ff5f00] dark:border-[#ff5f00]">
-          <h2 className="font-bold text-lg md:text-xl text-[#251914] dark:text-[#e5e2e1] tracking-tight">Selected Topics</h2>
-          <span id="count-selected" className="bg-[#fff8f6] dark:bg-[#2a2a2a] text-[#5b4137] dark:text-[#e4bfb1] font-bold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">0</span>
-        </div>
-        <div id="list-selected" className="card-list flex flex-col gap-3.5 overflow-y-auto pb-6 min-h-[160px] p-0.5"></div>
-      </div>
-
-      <!-- Column 3: In Progress -->
-      <div className="column-container w-full flex flex-col gap-3.5 p-2.5 rounded-2xl transition-all duration-200" data-status="in_progress">
-        <div className="flex justify-between items-center bg-[#ffe9e2] dark:bg-[#201f1f] px-4 py-3 rounded-xl shadow-sm border-t-4 border-[#a63b00] dark:border-[#ffb599]">
-          <h2 className="font-bold text-lg md:text-xl text-[#251914] dark:text-[#e5e2e1] tracking-tight">In Progress</h2>
-          <span id="count-in_progress" className="bg-[#fff8f6] dark:bg-[#2a2a2a] text-[#5b4137] dark:text-[#e4bfb1] font-bold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">0</span>
-        </div>
-        <div id="list-in_progress" className="card-list flex flex-col gap-3.5 overflow-y-auto pb-6 min-h-[160px] p-0.5"></div>
-      </div>
-
-      <!-- Column 4: Completed -->
-      <div className="column-container w-full flex flex-col gap-3.5 p-2.5 rounded-2xl transition-all duration-200 opacity-90" data-status="completed">
-        <div className="flex justify-between items-center bg-[#ffe9e2] dark:bg-[#201f1f] px-4 py-3 rounded-xl shadow-sm border-t-4 border-[#8f7065] dark:border-[#353534]">
-          <h2 className="font-bold text-lg md:text-xl text-[#251914] dark:text-[#e5e2e1] tracking-tight">Completed</h2>
-          <span id="count-completed" className="bg-[#fff8f6] dark:bg-[#2a2a2a] text-[#5b4137] dark:text-[#e4bfb1] font-bold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">0</span>
-        </div>
-        <div id="list-completed" className="card-list flex flex-col gap-3.5 overflow-y-auto pb-6 min-h-[160px] p-0.5"></div>
-      </div>
-    </main>
-
-    <!-- Edit Topic Modal -->
-    <div id="editModal" className="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-[#fff8f6] dark:bg-[#201f1f] rounded-2xl border border-[#f5ded6] dark:border-[#353534] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex justify-between items-center px-6 py-4 border-b border-[#f5ded6] dark:border-[#353534]">
-          <h3 id="modal-heading" className="font-bold text-lg text-[#251914] dark:text-[#e5e2e1]">编辑选题详情</h3>
-          <button id="modal-close" className="p-1 hover:bg-[#f5ded6] dark:hover:bg-[#353534] text-[#5b4137] dark:text-[#e4bfb1] rounded-lg">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        <form id="topic-form" className="p-6 overflow-y-auto space-y-4 flex-1">
-          <input type="hidden" id="edit-id" />
-
-          <div>
-            <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">选题标题</label>
-            <input type="text" id="edit-title" required className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">生命周期状态</label>
-              <select id="edit-status" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm outline-none">
-                <option value="inbox">Unselected (inbox)</option>
-                <option value="selected">Selected</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">选题来源</label>
-              <select id="edit-source-type" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm outline-none">
-                <option value="hotlist">🔥 热榜新闻 (hotlist)</option>
-                <option value="social_fav">📕 平台对标 (social_fav)</option>
-                <option value="original_idea">💡 灵光一现 (original_idea)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">分类 Category</label>
-              <input type="text" id="edit-category" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">平台 Platform</label>
-              <input type="text" id="edit-platform" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">黄金 Hook / 核心吸睛点</label>
-            <textarea id="edit-hook" rows="2" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none"></textarea>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">切入视角 Angles (每行一个)</label>
-            <textarea id="edit-angles" rows="2" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none"></textarea>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">脚本大纲 / Outline</label>
-            <textarea id="edit-outline" rows="3" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none"></textarea>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#5b4137] dark:text-[#e4bfb1] mb-1">原始链接 Source URL</label>
-            <input type="url" id="edit-url" className="w-full px-3 py-2 bg-white dark:bg-[#0e0e0e] border border-[#e4bfb1] dark:border-[#353534] rounded-lg text-sm focus:border-[#ff5f00] outline-none" />
-          </div>
-
-          <div className="flex justify-between items-center pt-4 border-t border-[#f5ded6] dark:border-[#353534]">
-            <button type="button" id="delete-btn" className="px-3 py-2 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg">删除选题</button>
-            <div className="flex items-center gap-2">
-              <button type="button" id="modal-cancel" className="px-4 py-2 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#5b4137] dark:text-[#e4bfb1] rounded-lg text-xs font-semibold">取消</button>
-              <button type="submit" className="px-5 py-2 bg-[#ff5f00] text-white rounded-lg text-xs font-bold shadow-ambient hover:scale-95 transition-transform">保存更改</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <script src="app.js"></script>
+  <body class="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] font-sans antialiased min-h-screen">
+    <div id="root"></div>
   </body>
 </html>
+
