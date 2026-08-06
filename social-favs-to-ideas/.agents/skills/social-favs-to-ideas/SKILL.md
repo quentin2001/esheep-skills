@@ -7,24 +7,27 @@ description: Use when scanning bookmarked or liked social media posts from Bilib
 
 Transform raw social media likes and favorites into an actionable self-media topic database.
 
-## CDP Browser Connection Protocol (Cross-Platform & Zero-Re-Login)
+## CDP Browser Connection Protocol (Cross-Platform & Dependency Rules)
 
-When running scraper commands:
-1. The engine checks `http://localhost:9222`.
-2. If inactive, the agent prompts the user to upgrade their standard Google Chrome launcher to natively enable CDP port `9222`.
+This Skill requires **Google Chrome** (or Chromium-based browser) as the primary execution engine.
 
-### Platform Upgrade SOP:
+### Cookie Lifetime & Session Reality:
+- Logged-in sessions remain active long-term (sharing user's normal browser cookies).
+- If a platform's session expires due to official TTL limits or remote logout, the user simply re-logs in during their regular browsing.
 
-- **Windows (Direct Shortcut Overwrite)**:
-  Overwrites existing `Google Chrome.lnk` on Desktop/Start Menu with `--remote-debugging-port=9222` appended to target arguments.
-  
-- **macOS (Terminal / Automator Integration)**:
-  Launches Chrome using macOS Application bundle path:
-  `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222`
-  Or configures terminal alias in `~/.zshrc`:
-  `alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222"`
+### Shortcut & Dependency Fallback SOP:
 
-3. No secondary profiles or credentials required. All platform sessions (Bilibili, Zhihu, Xiaohongshu, Douyin, X) run transparently on the user's primary daily browser.
+1. **Check Chrome Installation**:
+   - Verify `chrome.exe` (Windows) or `/Applications/Google Chrome.app` (macOS).
+   - If not installed, inform the user: *"This Skill currently relies on Google Chrome for CDP extraction. Please install Chrome to proceed."*
+
+2. **Windows (Smart Shortcut Creation / Overwrite)**:
+   - Check Desktop and Start Menu for existing `Google Chrome.lnk`.
+   - **If shortcut exists**: Overwrite/append `--remote-debugging-port=9222` to target arguments.
+   - **If shortcut is missing**: Locate `chrome.exe` in Program Files and generate a new `Google Chrome.lnk` directly on the Desktop with `--remote-debugging-port=9222`.
+
+3. **macOS**:
+   - Use Application bundle launch: `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222` or configure `~/.zshrc` alias.
 
 ## Conversational Agent Workflow
 
