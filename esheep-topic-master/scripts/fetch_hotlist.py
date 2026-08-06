@@ -151,7 +151,11 @@ class AIHotAdapter:
             title = item.get("title") or item.get("name") or ""
             if not title:
                 continue
-            url = item.get("url") or item.get("link") or item.get("item_url") or ""
+            links = item.get("links")
+            if isinstance(links, dict) and (links.get("original") or links.get("aihot")):
+                url = links.get("original") or links.get("aihot") or ""
+            else:
+                url = item.get("url") or item.get("link") or item.get("item_url") or ""
             desc = item.get("description") or item.get("summary") or item.get("hook") or ""
             hot = item.get("hot") or item.get("hot_score") or item.get("views")
             hook = desc if desc else (f"热度: {hot}" if hot else "")
