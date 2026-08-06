@@ -188,8 +188,8 @@ def test_serve_default_web_dir(tmp_path):
         with urllib.request.urlopen(f"{base_url}/") as resp:
             assert resp.status == 200
             content = resp.read().decode("utf-8")
-            assert "esheep-topic-master 选题掌管者" in content
-            assert "cards-inbox" in content
+            assert "Topic Master" in content
+            assert "list-inbox" in content
     finally:
         httpd.shutdown()
         httpd.server_close()

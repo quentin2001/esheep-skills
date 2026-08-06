@@ -1,174 +1,236 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>esheep-topic-master 选题掌管者</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Topic Master - Kanban Board</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#93000a",
+            "surface-container-highest": "#353534",
+            "surface-container-lowest": "#0e0e0e",
+            "surface-container": "#201f1f",
+            "tertiary": "#c8c6c6",
+            "error": "#ffb4ab",
+            "surface-variant": "#353534",
+            "on-surface": "#e5e2e1",
+            "on-tertiary-container": "#2c2c2c",
+            "on-background": "#e5e2e1",
+            "on-secondary-fixed-variant": "#474746",
+            "surface-dim": "#131313",
+            "on-secondary-container": "#b6b5b4",
+            "tertiary-fixed": "#e4e2e1",
+            "on-secondary": "#303030",
+            "secondary-fixed": "#e4e2e1",
+            "on-error": "#690005",
+            "on-primary-fixed": "#370e00",
+            "surface-bright": "#393939",
+            "secondary-container": "#474746",
+            "surface-container-low": "#1c1b1b",
+            "primary": "#ffb599",
+            "inverse-primary": "#a63b00",
+            "on-primary": "#5a1c00",
+            "surface-container-high": "#2a2a2a",
+            "on-tertiary": "#303030",
+            "secondary-fixed-dim": "#c8c6c5",
+            "primary-fixed-dim": "#ffb599",
+            "on-surface-variant": "#e4bfb1",
+            "tertiary-container": "#949393",
+            "surface": "#131313",
+            "secondary": "#c8c6c5",
+            "on-primary-container": "#531a00",
+            "primary-container": "#ff5f00",
+            "inverse-surface": "#e5e2e1",
+            "tertiary-fixed-dim": "#c8c6c6",
+            "on-primary-fixed-variant": "#7f2b00",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#1b1c1c",
+            "inverse-on-surface": "#313030",
+            "outline-variant": "#5b4137",
+            "on-tertiary-fixed-variant": "#474747",
+            "on-tertiary-fixed": "#1b1c1c",
+            "background": "#131313",
+            "outline": "#ab8a7d",
+            "primary-fixed": "#ffdbce",
+            "surface-tint": "#ffb599"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "16px",
+            "base": "8px",
+            "lg": "24px",
+            "xl": "32px",
+            "sm": "12px",
+            "xs": "4px",
+            "margin-desktop": "48px",
+            "margin-mobile": "16px",
+            "md": "16px"
+          },
+          "fontFamily": {
+            "headline-xl": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0;
+    }
+    .shadow-ambient {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .shadow-floating {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
 </head>
-<body>
-  <div class="app-container">
-    <!-- Top Action Bar -->
-    <header class="top-bar">
-      <div class="logo-group">
-        <span class="logo-emoji">🐑</span>
-        <div class="logo-text">
-          <h1>esheep-topic-master</h1>
-          <span class="sub-title">选题掌管者</span>
-        </div>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-x-hidden">
+  <!-- TopAppBar -->
+  <header class="bg-surface-container shadow-sm flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md mx-auto z-10 sticky top-0 border-b border-surface-variant">
+    <div class="flex items-center">
+      <span class="font-headline-md text-headline-md text-primary tracking-tight">Topic Master</span>
+    </div>
+    <div class="flex items-center gap-md">
+      <div class="relative hidden sm:block">
+        <input id="search-input" class="w-64 pl-4 pr-10 py-2 bg-surface-container-lowest border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md transition-all" placeholder="Search topics..." type="text"/>
+        <span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant">search</span>
       </div>
+      <button id="import-btn" class="bg-surface-container-high text-on-surface px-lg py-2 rounded-lg font-label-lg shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform flex items-center gap-sm">
+        <span class="material-symbols-outlined">sync</span>
+        Sync Social Favs
+      </button>
+      <button id="new-topic-btn" class="bg-primary-container text-on-primary-container px-lg py-2 rounded-lg font-label-lg border-b-2 border-inverse-primary shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform flex items-center gap-sm">
+        <span class="material-symbols-outlined">add</span>
+        New Topic
+      </button>
+    </div>
+  </header>
 
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="搜索选题标题、分类、Hook、标签..." autocomplete="off">
+  <!-- Main Content: Kanban Board -->
+  <main class="flex-1 overflow-x-auto p-margin-mobile md:p-margin-desktop scrollbar-hide flex gap-lg h-[calc(100vh-80px)]">
+    <!-- Column 1: Unselected Topics -->
+    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
+      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-surface-variant">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Unselected Topics</h2>
+        <span id="count-inbox" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
       </div>
+      <div id="list-inbox" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'inbox')"></div>
+    </div>
 
-      <div class="action-buttons">
-        <button id="import-btn" class="btn btn-secondary">
-          <span class="btn-icon">🔄</span> 一键导入社媒收藏
+    <!-- Column 2: Selected Topics -->
+    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
+      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-secondary-container">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Selected Topics</h2>
+        <span id="count-selected" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      </div>
+      <div id="list-selected" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'selected')"></div>
+    </div>
+
+    <!-- Column 3: In Progress -->
+    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
+      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg border-t-2 border-primary">
+        <h2 class="font-headline-md text-headline-md text-on-surface">In Progress</h2>
+        <span id="count-in_progress" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      </div>
+      <div id="list-in_progress" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'in_progress')"></div>
+    </div>
+
+    <!-- Column 4: Completed -->
+    <div class="flex-shrink-0 w-80 flex flex-col gap-md">
+      <div class="flex justify-between items-center bg-surface-container px-md py-sm rounded-lg opacity-70 border border-surface-variant">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Completed</h2>
+        <span id="count-completed" class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded-full">0</span>
+      </div>
+      <div id="list-completed" class="card-list flex flex-col gap-md overflow-y-auto scrollbar-hide pb-lg min-h-[60vh]" ondragover="allowDrop(event)" ondrop="drop(event, 'completed')"></div>
+    </div>
+  </main>
+
+  <!-- Edit Modal Overlay -->
+  <div id="editModal" class="hidden fixed inset-0 bg-inverse-surface/60 backdrop-blur-sm z-50 flex items-center justify-center p-margin-mobile">
+    <div class="bg-surface-container-lowest rounded-xl shadow-floating w-full max-w-2xl max-h-[921px] flex flex-col overflow-hidden relative border border-surface-variant">
+      <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container">
+        <h2 id="modal-heading" class="font-headline-lg text-headline-lg text-on-surface">Edit Topic</h2>
+        <button id="modal-close" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined text-2xl">close</span>
         </button>
-        <button id="add-btn" class="btn btn-primary">
-          <span class="btn-icon">➕</span> 新增选题
-        </button>
       </div>
-    </header>
-
-    <!-- Kanban Board -->
-    <main class="kanban-board">
-      <!-- Inbox Column -->
-      <section class="kanban-column" data-status="inbox">
-        <div class="column-header column-inbox">
-          <div class="column-title">
-            <span class="column-icon">📥</span>
-            <h2>未选中的散落选题</h2>
+      <form id="topic-form" class="flex flex-col flex-1 overflow-hidden">
+        <input type="hidden" id="edit-id">
+        <div class="p-lg overflow-y-auto flex-1 flex flex-col gap-md scrollbar-hide bg-surface-container-lowest">
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-lg text-label-lg text-on-surface-variant">Title</label>
+            <input id="edit-title" required class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
           </div>
-          <span class="badge badge-inbox" id="count-inbox">0</span>
-        </div>
-        <div class="cards-container" id="cards-inbox"></div>
-      </section>
-
-      <!-- Selected Column -->
-      <section class="kanban-column" data-status="selected">
-        <div class="column-header column-selected">
-          <div class="column-title">
-            <span class="column-icon">🎯</span>
-            <h2>选中的选题</h2>
+          <div class="grid grid-cols-2 gap-md">
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-lg text-label-lg text-on-surface-variant">Status</label>
+              <select id="edit-status" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md">
+                <option value="inbox">Unselected</option>
+                <option value="selected">Selected</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-sm">
+              <label class="font-label-lg text-label-lg text-on-surface-variant">Category</label>
+              <input id="edit-category" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
+            </div>
           </div>
-          <span class="badge badge-selected" id="count-selected">0</span>
-        </div>
-        <div class="cards-container" id="cards-selected"></div>
-      </section>
-
-      <!-- In Progress Column -->
-      <section class="kanban-column" data-status="in_progress">
-        <div class="column-header column-in_progress">
-          <div class="column-title">
-            <span class="column-icon">🚧</span>
-            <h2>正在做的选题</h2>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-lg text-label-lg text-on-surface-variant">Hook</label>
+            <textarea id="edit-hook" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="2"></textarea>
           </div>
-          <span class="badge badge-in_progress" id="count-in_progress">0</span>
-        </div>
-        <div class="cards-container" id="cards-in_progress"></div>
-      </section>
-
-      <!-- Completed Column -->
-      <section class="kanban-column" data-status="completed">
-        <div class="column-header column-completed">
-          <div class="column-title">
-            <span class="column-icon">✅</span>
-            <h2>做完的选题</h2>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-lg text-label-lg text-on-surface-variant">Content Angles</label>
+            <textarea id="edit-angles" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="3" placeholder="- Angle 1&#10;- Angle 2"></textarea>
           </div>
-          <span class="badge badge-completed" id="count-completed">0</span>
-        </div>
-        <div class="cards-container" id="cards-completed"></div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Topic Detail/Edit Modal -->
-  <div class="modal-backdrop" id="topic-modal" aria-hidden="true">
-    <div class="modal-content glass-panel" role="dialog" aria-labelledby="modal-heading">
-      <div class="modal-header">
-        <h3 id="modal-heading">编辑选题</h3>
-        <button type="button" class="close-btn" id="modal-close-btn" aria-label="关闭">&times;</button>
-      </div>
-      <form id="topic-form" class="modal-form">
-        <input type="hidden" id="topic-id">
-        
-        <div class="form-group">
-          <label for="form-title">选题标题 <span class="required">*</span></label>
-          <input type="text" id="form-title" required placeholder="请输入吸引人的选题标题">
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="form-status">选题状态</label>
-            <select id="form-status">
-              <option value="inbox">📥 未选中的散落选题</option>
-              <option value="selected">🎯 选中的选题</option>
-              <option value="in_progress">🚧 正在做的选题</option>
-              <option value="completed">✅ 做完的选题</option>
-            </select>
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-lg text-label-lg text-on-surface-variant">Script Outline</label>
+            <textarea id="edit-outline" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md resize-none" rows="4" placeholder="1. Intro&#10;2. Main Point&#10;3. CTA"></textarea>
           </div>
-
-          <div class="form-group flex-1">
-            <label for="form-category">分类</label>
-            <input type="text" id="form-category" placeholder="例如: AI/剪辑, 知识科普">
+          <div class="flex flex-col gap-sm">
+            <label class="font-label-lg text-label-lg text-on-surface-variant">Tags (comma separated)</label>
+            <input id="edit-tags" class="w-full px-4 py-2 bg-surface-container border border-surface-variant focus:border-[2px] focus:border-primary-container focus:outline-none rounded-lg text-on-surface font-body-md" type="text"/>
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="form-source-platform">来源平台</label>
-            <input type="text" id="form-source-platform" placeholder="例如: bilibili, 小红书">
-          </div>
-
-          <div class="form-group flex-2">
-            <label for="form-source-url">来源链接</label>
-            <input type="url" id="form-source-url" placeholder="https://...">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="form-hook">Hook 钩子 / 黄金三秒</label>
-          <textarea id="form-hook" rows="2" placeholder="提炼吸引观众的开头钩子或核心看点..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="form-angles">切入角度 (每行一个角度)</label>
-          <textarea id="form-angles" rows="3" placeholder="角度1: 实操避坑指南&#10;角度2: 零基础极速上手"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="form-outline">内容大纲 (每行一点)</label>
-          <textarea id="form-outline" rows="4" placeholder="1. 引言与背景&#10;2. 核心观点阐述&#10;3. 实操演示与总结"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="form-tags">标签 (多个标签请用逗号或空格隔开)</label>
-          <input type="text" id="form-tags" placeholder="例如: AI, 爆款文案, 剪辑">
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" id="delete-topic-btn" class="btn btn-danger hidden">
-            <span>🗑️</span> 删除选题
-          </button>
-          <div class="right-buttons">
-            <button type="button" id="cancel-modal-btn" class="btn btn-secondary">取消</button>
-            <button type="submit" class="btn btn-primary">
-              <span>💾</span> 保存选题
-            </button>
+        <div class="p-lg border-t border-surface-variant flex justify-between items-center bg-surface-container">
+          <button id="delete-btn" type="button" class="text-error font-label-lg text-label-lg hover:bg-error-container/20 px-4 py-2 rounded-lg transition-colors">Delete</button>
+          <div class="flex gap-md">
+            <button id="modal-cancel" type="button" class="text-on-surface-variant font-label-lg text-label-lg px-4 py-2 hover:bg-surface-variant rounded-lg transition-colors">Cancel</button>
+            <button id="save-btn" type="submit" class="bg-primary-container text-on-primary-container px-lg py-2 rounded-lg font-label-lg border-b-2 border-inverse-primary shadow-ambient hover:scale-[0.98] active:scale-95 transition-transform">Save</button>
           </div>
         </div>
       </form>
     </div>
   </div>
-
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="toast-container"></div>
 
   <script src="app.js"></script>
 </body>
