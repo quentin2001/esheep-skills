@@ -1,9 +1,9 @@
 ---
-name: social-favs-to-ideas
-description: Use when scanning bookmarked or liked social media posts from Bilibili, Zhihu, Xiaohongshu, Douyin, or X, and transforming them into structured self-media content topic ideas.
+name: esheep-social-radar
+description: 硅基电子羊 (eSheep) 出品 - 自动捕获 B站/知乎/小红书/抖音/X 平台的收藏与点赞，反向工程提炼为爆款自媒体选题数据库。
 ---
 
-# Social Media Favorites to Content Ideas
+# eSheep Social Radar (硅基电子羊 · 社交内容雷达)
 
 Transform raw social media likes and favorites into an actionable self-media topic database.
 
