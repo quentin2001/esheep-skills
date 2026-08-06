@@ -56,7 +56,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   };
 
   return (
-    <div className="flex-shrink-0 w-80 md:w-84 flex flex-col gap-4">
+    <div className="flex-1 min-w-[280px] max-w-[440px] flex flex-col gap-4">
       {/* Column Header */}
       <div
         className={`flex justify-between items-center bg-[#ffe9e2] dark:bg-[#201f1f] px-4 py-3 rounded-lg shadow-sm ${borderStyle}`}
