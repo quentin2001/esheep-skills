@@ -21,10 +21,10 @@ description: Use when managing topic lifecycles, serving the web kanban board, s
 
 ## Core Workflows
 
-### 1. Launch Web Kanban Dashboard
-Runs the local REST API server and serves the visual Kanban board interface.
+### 1. Auto-Start Web Kanban Dashboard
+Whenever the user starts discussing topics, querying topics, or adding ideas in chat, the Agent MUST automatically ensure the local REST API server is running in the background:
 - Run `python scripts/server.py --port 18922` via `run_command` (IsDaemon=true).
-- Inform user: "选题看板已在本地启动，访问链接：http://localhost:18922"`
+- Inform user on first start: "选题看板已在后台静默运行：http://localhost:18922"
 - Options:
   - `--port PORT`: Set listening port (default: `18922`).
   - `--db-path PATH`: Custom path to `topics.json`.
