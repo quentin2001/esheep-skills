@@ -79,28 +79,34 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
     }
   };
 
-  // Calculate dynamic inline expansion position near the clicked card
+  // Calculate dynamic inline expansion position to the RIGHT side of the clicked card
   const computeInlineStyle = (): React.CSSProperties => {
-    const isMobile = window.innerWidth < 640;
+    const isMobile = window.innerWidth < 768;
     if (isMobile || !cardRect) {
       return {
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 'min(92vw, 540px)',
+        width: 'min(92vw, 520px)',
         maxHeight: '88vh',
       };
     }
 
-    const targetWidth = Math.min(540, window.innerWidth - 32);
-    let left = cardRect.left;
+    const targetWidth = Math.min(520, window.innerWidth - 32);
+
+    // Prefer positioning directly to the RIGHT side of the clicked card
+    let left = cardRect.right + 16;
     if (left + targetWidth > window.innerWidth - 16) {
-      left = Math.max(16, window.innerWidth - targetWidth - 16);
+      // Fallback: position to the LEFT side of the card
+      left = cardRect.left - targetWidth - 16;
+      if (left < 16) {
+        left = window.innerWidth - targetWidth - 16;
+      }
     }
 
-    let top = cardRect.top - 12;
-    const estimatedHeight = 540;
+    let top = Math.max(16, cardRect.top - 8);
+    const estimatedHeight = 520;
     if (top + estimatedHeight > window.innerHeight - 16) {
       top = Math.max(16, window.innerHeight - estimatedHeight - 16);
     }
