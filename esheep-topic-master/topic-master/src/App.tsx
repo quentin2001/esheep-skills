@@ -23,6 +23,28 @@ export default function App() {
     return INITIAL_TOPICS;
   });
 
+  // Dark Mode state
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return (
+      localStorage.getItem('topic_master_theme') === 'dark' ||
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+  });
+
+  // Sync theme class on <html> & <body>
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      localStorage.setItem('topic_master_theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      localStorage.setItem('topic_master_theme', 'light');
+    }
+  }, [isDarkMode]);
+
   // Fetch initial topics from backend API
   useEffect(() => {
     fetch('/api/topics')
