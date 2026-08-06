@@ -36,9 +36,9 @@ python --version
 
 ### 2. 启动 Web 看板与服务 (Start Web Dashboard)
 ```bash
-python scripts/server.py --port 8000
+python scripts/server.py --port 18922
 ```
-启动后在浏览器访问 `http://localhost:8000` 即可使用可视化看板。
+启动后在浏览器访问 `http://localhost:18922` 即可使用可视化看板。
 
 ### 3. 同步社媒收藏灵感 (Import Social Favs)
 ```bash

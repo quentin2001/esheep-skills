@@ -165,7 +165,7 @@ def create_handler_class(db_path=None, web_dir=None):
     return CustomTopicRequestHandler
 
 
-def run_server(port=8000, db_path=None, web_dir=None, block=True):
+def run_server(port=18922, db_path=None, web_dir=None, block=True):
     handler_class = create_handler_class(db_path=db_path, web_dir=web_dir)
     server = ThreadedTCPServer(("0.0.0.0", port), handler_class)
     if block:
@@ -184,7 +184,7 @@ def run_server(port=8000, db_path=None, web_dir=None, block=True):
 
 def main():
     parser = argparse.ArgumentParser(description="esheep-topic-master REST API & Static Server")
-    parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
+    parser.add_argument("--port", type=int, default=18922, help="Port to listen on")
     parser.add_argument("--db-path", default=None, help="Path to topics.json")
     parser.add_argument("--web-dir", default=None, help="Path to web static files directory")
 

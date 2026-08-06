@@ -169,70 +169,8 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 20, use_c
         # Platform Navigation
         try:
             if platform == "xiaohongshu":
-                page.goto("https://www.xiaohongshu.com/explore", wait_until="domcontentloaded")
-                page.wait_for_timeout(2000)
-
-                profile_link = page.query_selector("a[href*='/user/profile/']")
-                if profile_link:
-                    href = profile_link.get_attribute("href") or ""
-                    base_profile = f"https://www.xiaohongshu.com{href}" if href.startswith("/") else href
-                    pure_profile = base_profile.split("?")[0]
-
-                    # 1. 真实收藏页 (tab=fav&subTab=note)
-                    print(f"[*] 导航至小红书真实收藏页: {pure_profile}?tab=fav&subTab=note")
-                    page.goto(f"{pure_profile}?tab=fav&subTab=note", wait_until="domcontentloaded")
-                    page.wait_for_timeout(3000)
-                    for _ in range(2):
-                        page.evaluate("window.scrollBy(0, 800)")
-                        page.wait_for_timeout(1000)
-
-                    anchors_c = page.query_selector_all("a[href*='/explore/']")
-                    for a in anchors_c:
-                        try:
-                            href_a = a.get_attribute("href") or ""
-                            text_a = a.inner_text().strip()
-                            nid_m = re.search(r'/explore/([a-zA-Z0-9]+)', href_a)
-                            if nid_m:
-                                nid = nid_m.group(1)
-                                full_url = f"https://www.xiaohongshu.com{href_a}" if href_a.startswith("/") else href_a
-                                if text_a and "小红书" not in text_a and len(text_a) > 2:
-                                    items.append(parse_raw_item({
-                                        "platform": "xiaohongshu",
-                                        "action_type": "favorite",
-                                        "id": nid,
-                                        "title": text_a,
-                                        "url": full_url
-                                    }))
-                        except Exception:
-                            pass
-
-                    # 2. 真实点赞页 (tab=liked&subTab=note)
-                    print(f"[*] 导航至小红书真实点赞页: {pure_profile}?tab=liked&subTab=note")
-                    page.goto(f"{pure_profile}?tab=liked&subTab=note", wait_until="domcontentloaded")
-                    page.wait_for_timeout(3000)
-                    for _ in range(2):
-                        page.evaluate("window.scrollBy(0, 800)")
-                        page.wait_for_timeout(1000)
-
-                    anchors_l = page.query_selector_all("a[href*='/explore/']")
-                    for a in anchors_l:
-                        try:
-                            href_a = a.get_attribute("href") or ""
-                            text_a = a.inner_text().strip()
-                            nid_m = re.search(r'/explore/([a-zA-Z0-9]+)', href_a)
-                            if nid_m:
-                                nid = nid_m.group(1)
-                                full_url = f"https://www.xiaohongshu.com{href_a}" if href_a.startswith("/") else href_a
-                                if text_a and "小红书" not in text_a and len(text_a) > 2:
-                                    items.append(parse_raw_item({
-                                        "platform": "xiaohongshu",
-                                        "action_type": "like",
-                                        "id": nid,
-                                        "title": text_a,
-                                        "url": full_url
-                                    }))
-                        except Exception:
-                            pass
+                print("[!] 提示：小红书提取功能已采取物理安全关闭保护，绝不触发任何抓取，防止账号风控。")
+                return []
 
             elif platform == "douyin":
                 # 1. 真实收藏页 - 直接前往官方精准 URL (showTab=favorite_collection)
@@ -415,12 +353,12 @@ def write_markdown_database():
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="MediaCrawler-inspired Social Media Engine")
-    parser.add_argument("--platform", type=str, default="xiaohongshu", choices=["bilibili", "zhihu", "xiaohongshu", "douyin", "x", "all"])
-    parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--platform", type=str, default="douyin", choices=["bilibili", "zhihu", "douyin", "x", "all"])
+    parser.add_argument("--limit", type=int, default=20)
     args = parser.parse_args()
 
     if args.platform == "all":
-        for plat in ["xiaohongshu", "douyin", "bilibili", "zhihu", "x"]:
+        for plat in ["douyin", "x", "bilibili", "zhihu"]:
             fetch_platform(plat, limit=args.limit)
     else:
         fetch_platform(args.platform, limit=args.limit)

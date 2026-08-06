@@ -1,6 +1,6 @@
 ---
 name: esheep-social-favs-copilot
-description: 硅基电子羊 (eSheep) 出品 - 精准捕获 B站/知乎/小红书/抖音/X 平台的收藏与点赞，反向工程提炼为爆款自媒体选题数据库。
+description: 硅基电子羊 (eSheep) 出品 - 精准捕获 抖音、X(Twitter)、B站、知乎 平台的收藏与点赞，反向工程提炼为爆款自媒体选题数据库。(小红书已物理熔断关闭以保障账号绝对安全)
 ---
 
 # eSheep Social Favs Copilot (硅基电子羊 · 社交藏品选题副驾驶)

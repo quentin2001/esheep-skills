@@ -12,7 +12,6 @@ from scripts.config import SESSIONS_DIR
 PLATFORMS = {
     "bilibili": "https://passport.bilibili.com/login",
     "zhihu": "https://www.zhihu.com/signin",
-    "xiaohongshu": "https://www.xiaohongshu.com",
     "douyin": "https://www.douyin.com",
     "x": "https://x.com/i/flow/login"
 }

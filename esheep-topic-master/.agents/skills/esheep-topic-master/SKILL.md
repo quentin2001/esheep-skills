@@ -18,12 +18,10 @@ description: Use when managing topic lifecycles, serving the web kanban board, s
 
 ### 1. Launch Web Kanban Dashboard
 Runs the local REST API server and serves the visual Kanban board interface.
-```bash
-python scripts/server.py --port 8000
-```
-- Access Kanban Dashboard: `http://localhost:8000`
+- Run `python scripts/server.py --port 18922` via `run_command` (IsDaemon=true).
+- Inform user: "选题看板已在本地启动，访问链接：http://localhost:18922"`
 - Options:
-  - `--port PORT`: Set listening port (default: `8000`).
+  - `--port PORT`: Set listening port (default: `18922`).
   - `--db-path PATH`: Custom path to `topics.json`.
   - `--web-dir PATH`: Custom path to web static files.
 
