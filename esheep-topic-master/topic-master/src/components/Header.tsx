@@ -19,9 +19,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getThemeLabel = () => {
     switch (themeMode) {
-      case 'light': return 'Light';
-      case 'dark': return 'Dark';
-      case 'system': return 'System';
+      case 'light': return 'Light Mode';
+      case 'dark': return 'Dark Mode';
+      case 'system': return 'Follow System Mode';
     }
   };
 
@@ -38,13 +38,12 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center">
         <button
           onClick={cycleTheme}
-          title={`Current Mode: ${getThemeLabel()} (Click to switch)`}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer text-xs font-semibold"
+          title={`Theme Mode: ${getThemeLabel()} (Click to switch)`}
+          className="p-2.5 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center justify-center"
         >
           {themeMode === 'light' && <Sun className="w-4 h-4 text-amber-700" />}
           {themeMode === 'dark' && <Moon className="w-4 h-4 text-[#ffb599]" />}
-          {themeMode === 'system' && <Laptop className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
-          <span className="hidden sm:inline">{getThemeLabel()}</span>
+          {themeMode === 'system' && <Laptop className="w-4 h-4 text-amber-700 dark:text-[#ffb599]" />}
         </button>
       </div>
     </header>
