@@ -96,21 +96,27 @@ def is_cdp_port_active(port: int = CDP_PORT) -> bool:
             pass
     return False
 
-def check_account_logged_in(platform: str, page) -> bool:
+def bring_window_to_foreground():
     try:
-        if platform == "xiaohongshu":
-            page.goto("https://www.xiaohongshu.com/explore", wait_until="domcontentloaded")
-            page.wait_for_timeout(2000)
-            me = page.query_selector("a[href*='/user/profile/']")
-            return me is not None
-        elif platform == "douyin":
-            page.goto("https://www.douyin.com", wait_until="domcontentloaded")
-            page.wait_for_timeout(2000)
-            my = page.query_selector("a[href*='/user/']") or page.query_selector("span:has-text('我的')")
-            return my is not None
+        import ctypes
+        user32 = ctypes.windll.user32
+        EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
+
+        def enum_cb(hwnd, extra):
+            if user32.IsWindowVisible(hwnd):
+                length = user32.GetWindowTextLengthW(hwnd)
+                buff = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buff, length + 1)
+                title = buff.value.lower()
+                if any(k in title for k in ["chrome", "x", "bookmarks", "新标签页"]):
+                    user32.ShowWindow(hwnd, 9) # SW_RESTORE
+                    user32.SetForegroundWindow(hwnd)
+                    return False
+            return True
+
+        user32.EnumWindows(EnumWindowsProc(enum_cb), 0)
     except Exception:
         pass
-    return False
 
 def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cdp: bool = True) -> list:
     items = []
@@ -119,26 +125,6 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cd
     with sync_playwright() as p:
         browser = None
         context = None
-
-        if use_cdp and not is_cdp_port_active(CDP_PORT):
-            print(f"[*] 端口 127.0.0.1:{CDP_PORT} 未激活，尝试自动唤起调试模式 Chrome...")
-            chrome_exe = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-            if not os.path.exists(chrome_exe):
-                chrome_exe = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
-
-            user_dir = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\User Data CDP")
-            cmd = f'"{chrome_exe}" --remote-debugging-port={CDP_PORT} --remote-debugging-address=0.0.0.0 --user-data-dir="{user_dir}"'
-            try:
-                import subprocess
-                subprocess.Popen(cmd, shell=True)
-                print(f"[+] 已在后台拉起调试端口 Chrome，等待连接 127.0.0.1:{CDP_PORT}...")
-                import time
-                for _ in range(10):
-                    time.sleep(1)
-                    if is_cdp_port_active(CDP_PORT):
-                        break
-            except Exception as e:
-                print(f"[!] 自动拉起 Chrome 失败: {e}")
 
         if use_cdp and is_cdp_port_active(CDP_PORT):
             print(f"[+] 成功通过 CDP 直连端口 127.0.0.1:{CDP_PORT}")
@@ -149,8 +135,12 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cd
                 print(f"[!] CDP 直连失败: {err}")
 
         if not context:
-            print(f"[!] 未检测到 127.0.0.1:{CDP_PORT} CDP 调试端口。请确保先运行带 9222 端口命令启动 Chrome。")
-            return []
+            user_data = os.path.join(SESSIONS_DIR, f"{platform}_user_data")
+            context = p.chromium.launch_persistent_context(
+                user_data_dir=user_data,
+                headless=False,
+                args=["--disable-blink-features=AutomationControlled"]
+            )
 
         # Reuse current active page if available, or create tab
         page = context.pages[0] if context.pages else context.new_page()
@@ -306,9 +296,15 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cd
                 print("[*] 导航至 X 官方书签页: https://x.com/i/bookmarks")
                 page.goto("https://x.com/i/bookmarks", wait_until="domcontentloaded")
                 try:
-                    page.wait_for_selector("article[data-testid='tweet']", timeout=5000)
+                    page.wait_for_selector("article[data-testid='tweet']", timeout=6000)
                 except Exception:
-                    pass
+                    print("[!] 未在 X 页面检测到已登录推文，自动调用 Win32 强行将 Chrome 窗口激活抢占至桌面上方...")
+                    bring_window_to_foreground()
+
+                # Diagnostic screenshot for X
+                screenshot_x = os.path.join(os.path.dirname(IDEAS_DB_FILE), "x_bookmarks_page.png")
+                page.screenshot(path=screenshot_x, full_page=False)
+                print(f"[*] 已生成 X 书签页诊断截图: {screenshot_x}")
 
                 for _ in range(3):
                     page.evaluate("window.scrollBy(0, 800)")

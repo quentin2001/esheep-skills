@@ -7,12 +7,24 @@ description: Use when scanning bookmarked or liked social media posts from Bilib
 
 Transform raw social media likes and favorites into an actionable self-media topic database.
 
-## CDP Browser Connection Protocol (Zero-Re-Login)
+## CDP Browser Connection Protocol (Cross-Platform & Zero-Re-Login)
 
 When running scraper commands:
 1. The engine checks `http://localhost:9222`.
-2. If inactive, the engine automatically executes `chrome.exe --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --user-data-dir="%LOCALAPPDATA%\Google\Chrome\User Data CDP"` to launch the CDP-enabled browser instance seamlessly in the background without disturbing active user tabs.
-3. No manual CLI input is required from the user. All account sessions (Bilibili, Zhihu, Xiaohongshu, Douyin, X) share this unified CDP connection.
+2. If inactive, the agent prompts the user to upgrade their standard Google Chrome launcher to natively enable CDP port `9222`.
+
+### Platform Upgrade SOP:
+
+- **Windows (Direct Shortcut Overwrite)**:
+  Overwrites existing `Google Chrome.lnk` on Desktop/Start Menu with `--remote-debugging-port=9222` appended to target arguments.
+  
+- **macOS (Terminal / Automator Integration)**:
+  Launches Chrome using macOS Application bundle path:
+  `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222`
+  Or configures terminal alias in `~/.zshrc`:
+  `alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222"`
+
+3. No secondary profiles or credentials required. All platform sessions (Bilibili, Zhihu, Xiaohongshu, Douyin, X) run transparently on the user's primary daily browser.
 
 ## Conversational Agent Workflow
 
