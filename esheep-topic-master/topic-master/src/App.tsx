@@ -77,7 +77,9 @@ export default function App() {
             tags: t.tags || [],
             date: t.created_at ? t.created_at.split('T')[0] : (t.date || 'Today'),
             status: t.status === 'inbox' ? 'unselected' : (t.status as TopicStatus),
-            progress: t.progress || 0
+            progress: t.progress || 0,
+            source_type: t.source_type || 'original_idea',
+            source_url: t.source_url || t.url || ''
           }));
           setTopics(mapped);
         }
@@ -103,7 +105,9 @@ export default function App() {
           tags: t.tags,
           created_at: t.date,
           status: t.status === 'unselected' ? 'inbox' : t.status,
-          progress: t.progress
+          progress: t.progress,
+          source_type: t.source_type,
+          source_url: t.source_url
         })))
       }).catch(err => console.log('Sync to backend error', err));
     } catch (e) {

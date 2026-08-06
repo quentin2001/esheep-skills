@@ -1,6 +1,6 @@
 import React from 'react';
 import { Topic, TopicStatus } from '../types';
-import { GripVertical, Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink } from 'lucide-react';
 
 interface TopicCardProps {
   topic: Topic;
@@ -21,27 +21,31 @@ export const TopicCard: React.FC<TopicCardProps> = ({
   const isInProgress = topic.status === 'in_progress';
   const isSelected = topic.status === 'selected';
 
-  // Status transitions for quick move buttons
-  const getNextStatus = (current: TopicStatus): TopicStatus | null => {
-    switch (current) {
-      case 'unselected': return 'selected';
-      case 'selected': return 'in_progress';
-      case 'in_progress': return 'completed';
-      default: return null;
+  const renderSourceBadge = () => {
+    switch (topic.source_type) {
+      case 'hotlist':
+        return (
+          <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-200 dark:border-amber-900">
+            <Flame className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+            热榜
+          </span>
+        );
+      case 'social_fav':
+        return (
+          <span className="bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-rose-200 dark:border-rose-900">
+            <Bookmark className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+            对标
+          </span>
+        );
+      default:
+        return (
+          <span className="bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-blue-200 dark:border-blue-900">
+            <Lightbulb className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            灵感
+          </span>
+        );
     }
   };
-
-  const getPrevStatus = (current: TopicStatus): TopicStatus | null => {
-    switch (current) {
-      case 'selected': return 'unselected';
-      case 'in_progress': return 'selected';
-      case 'completed': return 'in_progress';
-      default: return null;
-    }
-  };
-
-  const prevStatus = getPrevStatus(topic.status);
-  const nextStatus = getNextStatus(topic.status);
 
   return (
     <div
@@ -57,9 +61,12 @@ export const TopicCard: React.FC<TopicCardProps> = ({
     >
       {/* Top badges bar */}
       <div className="flex justify-between items-center mb-2">
-        <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#251914] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">
-          {topic.category || 'General'}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#251914] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">
+            {topic.category || 'General'}
+          </span>
+          {renderSourceBadge()}
+        </div>
         <div className="flex items-center gap-1">
           <span className="text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold">
             {topic.platform}
@@ -88,27 +95,41 @@ export const TopicCard: React.FC<TopicCardProps> = ({
       )}
 
       {/* Hook / Summary */}
-      <p className="text-sm text-[#5b4137] dark:text-[#e4bfb1] mb-3 line-clamp-2 leading-relaxed font-normal">
-        {topic.hook}
-      </p>
+      {topic.hook && (
+        <p className="text-xs text-[#5b4137] dark:text-[#e4bfb1] mb-3 line-clamp-2 leading-relaxed bg-[#fff8f6] dark:bg-[#1f1e1e] p-2 rounded-lg border border-[#f5ded6] dark:border-transparent">
+          {topic.hook}
+        </p>
+      )}
 
-      {/* Tags and Date */}
-      <div className="flex justify-between items-end pt-1">
-        <div className="flex flex-wrap gap-1.5 max-w-[70%]">
-          {topic.tags.map((tag, idx) => (
-            <span
-              key={idx}
-              className="bg-[#fff8f6] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] border border-[#f5ded6] dark:border-transparent font-medium text-xs px-2 py-0.5 rounded-md"
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
+      {/* Footer: Tags, Source Link and Date */}
+      <div className="flex justify-between items-center pt-1.5 border-t border-[#f5ded6]/60 dark:border-[#353534]/60">
+        {topic.source_url ? (
+          <a
+            href={topic.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-[#ff5f00] hover:underline text-xs font-bold flex items-center gap-1"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>源链接</span>
+          </a>
+        ) : (
+          <div className="flex flex-wrap gap-1.5 max-w-[60%]">
+            {topic.tags.map((tag, idx) => (
+              <span
+                key={idx}
+                className="bg-[#fff8f6] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] border border-[#f5ded6] dark:border-transparent font-medium text-[11px] px-2 py-0.5 rounded-md"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
         <span className="text-xs text-[#a63b00] dark:text-[#ab8a7d] whitespace-nowrap font-semibold">
           {topic.date}
         </span>
       </div>
-
     </div>
   );
 };
