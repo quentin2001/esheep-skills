@@ -24,7 +24,7 @@ def _fetch_json(url, custom_headers=None, timeout=10):
     req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = resp.read().decode("utf-8")
+            data = resp.read().decode("utf-8", errors="replace")
             return json.loads(data)
     except Exception:
         return None
@@ -120,7 +120,7 @@ class AIHotAdapter:
             return []
 
         if isinstance(resp_data, dict):
-            raw_items = resp_data.get("data", [])
+            raw_items = resp_data.get("items", []) or resp_data.get("data", [])
             if isinstance(raw_items, dict):
                 raw_items = raw_items.get("items", [])
         elif isinstance(resp_data, list):
@@ -157,10 +157,87 @@ class AIHotAdapter:
         return results
 
 
+class ToutiaoHotAdapter:
+    URL = "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc"
+
+    def fetch(self, limit=15):
+        resp_data = _fetch_json(self.URL)
+        if not resp_data or not isinstance(resp_data, dict):
+            return []
+
+        raw_items = resp_data.get("data", [])
+        if not isinstance(raw_items, list):
+            return []
+
+        results = []
+        for item in raw_items:
+            if len(results) >= limit:
+                break
+            if not isinstance(item, dict):
+                continue
+            title = item.get("Title") or item.get("title") or ""
+            if not title:
+                continue
+            url = item.get("Url") or item.get("url") or ""
+            hot = item.get("HotValue") or item.get("hot_value") or ""
+            results.append({
+                "title": title,
+                "source_title": title,
+                "source_url": url,
+                "source_platform": "toutiao",
+                "source_type": "hotlist",
+                "hook": f"热度: {hot}" if hot else "",
+                "category": "热搜综合",
+            })
+        return results
+
+
+class BilibiliHotAdapter:
+    URL = "https://api.bilibili.com/x/web-interface/popular?ps=20&pn=1"
+
+    def fetch(self, limit=15):
+        resp_data = _fetch_json(self.URL)
+        if not resp_data or not isinstance(resp_data, dict):
+            return []
+
+        data_obj = resp_data.get("data", {})
+        if not isinstance(data_obj, dict):
+            return []
+
+        list_items = data_obj.get("list", [])
+        if not isinstance(list_items, list):
+            return []
+
+        results = []
+        for item in list_items:
+            if len(results) >= limit:
+                break
+            if not isinstance(item, dict):
+                continue
+            title = item.get("title") or ""
+            if not title:
+                continue
+            bvid = item.get("bvid") or ""
+            url = f"https://www.bilibili.com/video/{bvid}" if bvid else item.get("short_link", "")
+            desc = item.get("desc") or item.get("rcmd_reason", {}).get("content", "")
+            results.append({
+                "title": title,
+                "source_title": title,
+                "source_url": url,
+                "source_platform": "bilibili",
+                "source_type": "hotlist",
+                "hook": desc,
+                "category": item.get("tname") or "B站热门",
+            })
+        return results
+
+
 ADAPTER_MAP = {
     "zhihu": ZhihuHotAdapter,
     "weibo": WeiboHotAdapter,
     "aihot": AIHotAdapter,
+    "toutiao": ToutiaoHotAdapter,
+    "bilibili": BilibiliHotAdapter,
 }
 
 
@@ -243,7 +320,13 @@ def ingest_hotlist(items, db_path=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fetch hotlist topics from Zhihu, Weibo, AIHot.")
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
+    parser = argparse.ArgumentParser(description="Fetch hotlist topics from Zhihu, Weibo, AIHot, Toutiao, Bilibili.")
     parser.add_argument(
         "--sources",
         default="zhihu,weibo,aihot",
