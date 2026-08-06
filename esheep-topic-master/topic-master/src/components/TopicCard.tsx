@@ -4,7 +4,7 @@ import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink } from 'lucide-r
 
 interface TopicCardProps {
   topic: Topic;
-  onEdit: (topic: Topic) => void;
+  onEdit: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDragStart: (e: React.DragEvent, id: string) => void;
   onDragEnd: (e: React.DragEvent) => void;
@@ -61,7 +61,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({
       draggable
       onDragStart={(e) => onDragStart(e, topic.id)}
       onDragEnd={onDragEnd}
-      onClick={() => onEdit(topic)}
+      onClick={(e) => onEdit(topic, e.currentTarget.getBoundingClientRect())}
       className={`group relative bg-white dark:bg-[#0e0e0e] rounded-xl p-4 shadow-ambient hover:shadow-floating transition-all duration-200 cursor-grab active:cursor-grabbing border ${
         isSelected
           ? 'border-t-4 border-t-[#ff5f00] border-x-[#f5ded6] border-b-[#f5ded6] dark:border-x-[#353534] dark:border-b-[#353534]'

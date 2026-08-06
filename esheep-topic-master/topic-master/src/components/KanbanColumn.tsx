@@ -8,7 +8,7 @@ interface KanbanColumnProps {
   count: number;
   topics: Topic[];
   borderStyle: string;
-  onEditTopic: (topic: Topic) => void;
+  onEditTopic: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDropTopic: (topicId: string, newStatus: TopicStatus) => void;
 }

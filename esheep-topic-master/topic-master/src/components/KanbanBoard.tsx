@@ -4,7 +4,7 @@ import { KanbanColumn } from './KanbanColumn';
 
 interface KanbanBoardProps {
   topics: Topic[];
-  onEditTopic: (topic: Topic) => void;
+  onEditTopic: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDropTopic: (topicId: string, newStatus: TopicStatus) => void;
 }

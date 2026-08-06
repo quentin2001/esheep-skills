@@ -115,8 +115,8 @@ export default function App() {
     }
   };
 
-  // Modals state
-  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
+  // Modals state with card bounding rect
+  const [editingTarget, setEditingTarget] = useState<{ topic: Topic; rect?: DOMRect } | null>(null);
 
   // Handlers
   const handleMoveStatus = (id: string, newStatus: TopicStatus) => {
@@ -158,16 +158,17 @@ export default function App() {
       {/* Main Kanban Board */}
       <KanbanBoard
         topics={topics}
-        onEditTopic={(t) => setEditingTopic(t)}
+        onEditTopic={(t, rect) => setEditingTarget({ topic: t, rect })}
         onMoveStatus={handleMoveStatus}
         onDropTopic={handleDropTopic}
       />
 
-      {/* Modals */}
+      {/* Inline Floating Expansion Card */}
       <EditTopicModal
-        topic={editingTopic}
-        isOpen={Boolean(editingTopic)}
-        onClose={() => setEditingTopic(null)}
+        topic={editingTarget?.topic || null}
+        cardRect={editingTarget?.rect || null}
+        isOpen={Boolean(editingTarget)}
+        onClose={() => setEditingTarget(null)}
         onSave={handleSaveTopic}
         onDelete={handleDeleteTopic}
       />
