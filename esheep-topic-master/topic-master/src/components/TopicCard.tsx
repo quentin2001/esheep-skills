@@ -25,22 +25,22 @@ export const TopicCard: React.FC<TopicCardProps> = ({
     switch (topic.source_type) {
       case 'hotlist':
         return (
-          <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-200 dark:border-amber-900">
-            <Flame className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
+            <Flame className="w-3 h-3 text-[#ff5f00]" />
             热榜
           </span>
         );
       case 'social_fav':
         return (
-          <span className="bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-rose-200 dark:border-rose-900">
-            <Bookmark className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
+            <Bookmark className="w-3 h-3 text-[#a63b00]" />
             对标
           </span>
         );
       default:
         return (
-          <span className="bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 font-bold text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-blue-200 dark:border-blue-900">
-            <Lightbulb className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
+            <Lightbulb className="w-3 h-3 text-amber-600 dark:text-amber-400" />
             灵感
           </span>
         );
@@ -62,9 +62,6 @@ export const TopicCard: React.FC<TopicCardProps> = ({
       {/* Top badges bar */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-1.5">
-          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#251914] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">
-            {topic.category || 'General'}
-          </span>
           {renderSourceBadge()}
         </div>
         <div className="flex items-center gap-1">
