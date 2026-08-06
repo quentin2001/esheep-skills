@@ -301,11 +301,6 @@ def fetch_platform(platform: str, headless: bool = False, limit: int = 20, use_c
                     print("[!] 未在 X 页面检测到已登录推文，自动调用 Win32 强行将 Chrome 窗口激活抢占至桌面上方...")
                     bring_window_to_foreground()
 
-                # Diagnostic screenshot for X
-                screenshot_x = os.path.join(os.path.dirname(IDEAS_DB_FILE), "x_bookmarks_page.png")
-                page.screenshot(path=screenshot_x, full_page=False)
-                print(f"[*] 已生成 X 书签页诊断截图: {screenshot_x}")
-
                 for _ in range(3):
                     page.evaluate("window.scrollBy(0, 800)")
                     page.wait_for_timeout(1000)
