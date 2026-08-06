@@ -24,7 +24,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const completedList = getTopicsByStatus('completed');
 
   return (
-    <main className="flex-1 overflow-x-auto p-4 md:p-8 flex gap-5 md:gap-6 justify-center w-full max-w-[1800px] mx-auto min-h-[calc(100vh-80px)]">
+    <main className="flex-1 p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1600px] mx-auto items-start">
       {/* Column 1: Unselected Topics */}
       <KanbanColumn
         title="Unselected Topics"
