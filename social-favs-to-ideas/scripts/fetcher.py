@@ -118,7 +118,7 @@ def bring_window_to_foreground():
     except Exception:
         pass
 
-def fetch_platform(platform: str, headless: bool = False, limit: int = 5, use_cdp: bool = True) -> list:
+def fetch_platform(platform: str, headless: bool = False, limit: int = 20, use_cdp: bool = True) -> list:
     items = []
     print(f"[*] [MediaCrawler-Engine] 启动 {platform} 提取引擎 (limit={limit})...")
 
@@ -408,7 +408,9 @@ def write_markdown_database():
             a_label = "收藏 (Favorite)" if a_type == "favorite" else "喜欢/点赞 (Like)"
             md.append(f"### 标签: {a_label} (共 {len(p_items)} 条记录)\n")
             for idx, item in enumerate(p_items[:10], 1):
-                md.append(f"{idx}. **{item['title']}**\n   - 直链地址: [{item['url']}]({item['url']})\n   - 唯一ID: `{item['id']}`\n")
+                scraped_date = item.get("scraped_at", "").split("T")[0]
+                date_str = f" [捕获日期: {scraped_date}]" if scraped_date else ""
+                md.append(f"{idx}. **{item['title']}**{date_str}\n   - 直链地址: [{item['url']}]({item['url']})\n   - 唯一ID: `{item['id']}`\n")
 
     out_md = "\n".join(md)
     with open(IDEAS_DB_FILE, "w", encoding="utf-8") as f:

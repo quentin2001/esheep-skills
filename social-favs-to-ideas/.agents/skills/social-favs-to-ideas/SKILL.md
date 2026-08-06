@@ -44,11 +44,11 @@ When the user asks to fetch likes/favorites from specific platforms (e.g., "只�
 2. Execute `python scripts/fetcher.py --platform <platform>` for each requested platform.
 3. Read `data/raw_favs.json` and process newly added entries.
 
-### Scenario C: Full Automatic Topic Generation
-When the user asks to generate topics (e.g., "扫描我最近喜欢的内容生成选题"):
-1. Execute `python scripts/fetcher.py --platform all` (or specific platforms if specified, with `--limit <number>` if count limit requested).
-2. If any platform session is missing, inform the user and automatically trigger Scenario A for that platform.
-3. Process `data/raw_favs.json`, perform topic reverse-engineering, and update `data/content_ideas_database.md`.
+### Scenario D: Scheduled / Cron Background Automation
+When the user wants to run automatic background extraction (e.g., "每天定时抓取我的最新点赞", "每6小时自动同步选题"):
+- Recommend the `/schedule` slash command to set up a recurring cron task.
+- The engine uses a **Top-20 Sliding Window Baseline Mode** (`--limit 20`).
+- Each scheduled execution quickly fetches the latest 20 items per platform, performs incremental ID deduplication via `add_new_favs`, and appends new topics silently without triggering anti-scraping limits.
 
 ## Pre-Filtering Guidelines (Handling Large Amounts of Likes/Favs)
 
