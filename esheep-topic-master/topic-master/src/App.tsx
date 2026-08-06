@@ -6,6 +6,8 @@ import { KanbanBoard } from './components/KanbanBoard';
 import { EditTopicModal } from './components/EditTopicModal';
 import { NewTopicModal } from './components/NewTopicModal';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export default function App() {
   // Load topics from backend API or fallback to localStorage / initial topics
   const [topics, setTopics] = useState<Topic[]>(() => {
@@ -21,27 +23,43 @@ export default function App() {
     return INITIAL_TOPICS;
   });
 
-  // Dark Mode state
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return (
-      localStorage.getItem('topic_master_theme') === 'dark' ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    );
+  // Theme Mode state (light, dark, system)
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    return (localStorage.getItem('topic_master_theme_mode') as ThemeMode) || 'system';
   });
 
   // Sync theme class on <html> & <body>
   useEffect(() => {
     const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      root.classList.remove('light');
-      localStorage.setItem('topic_master_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      localStorage.setItem('topic_master_theme', 'light');
+    const applyTheme = () => {
+      let isDark = false;
+      if (themeMode === 'dark') {
+        isDark = true;
+      } else if (themeMode === 'light') {
+        isDark = false;
+      } else {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      if (isDark) {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      }
+    };
+
+    applyTheme();
+    localStorage.setItem('topic_master_theme_mode', themeMode);
+
+    if (themeMode === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
     }
-  }, [isDarkMode]);
+  }, [themeMode]);
 
   // Fetch initial topics from backend API
   useEffect(() => {
@@ -159,8 +177,8 @@ export default function App() {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         categories={categories}
-        isDarkMode={isDarkMode}
-        toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        themeMode={themeMode}
+        onThemeModeChange={setThemeMode}
         onOpenNewTopic={() => {
           setNewTopicInitialStatus('unselected');
           setIsNewTopicOpen(true);

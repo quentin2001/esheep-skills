@@ -1,5 +1,6 @@
 import React from 'react';
-import { Search, Plus, Sun, Moon, X } from 'lucide-react';
+import { Search, Plus, Sun, Moon, Laptop, X } from 'lucide-react';
+import { ThemeMode } from '../App';
 
 interface HeaderProps {
   searchQuery: string;
@@ -7,8 +8,8 @@ interface HeaderProps {
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
   categories: string[];
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
+  themeMode: ThemeMode;
+  onThemeModeChange: (mode: ThemeMode) => void;
   onOpenNewTopic: () => void;
 }
 
@@ -18,10 +19,24 @@ export const Header: React.FC<HeaderProps> = ({
   selectedCategory,
   setSelectedCategory,
   categories,
-  isDarkMode,
-  toggleDarkMode,
+  themeMode,
+  onThemeModeChange,
   onOpenNewTopic,
 }) => {
+  const cycleTheme = () => {
+    if (themeMode === 'light') onThemeModeChange('dark');
+    else if (themeMode === 'dark') onThemeModeChange('system');
+    else onThemeModeChange('light');
+  };
+
+  const getThemeLabel = () => {
+    switch (themeMode) {
+      case 'light': return 'Light';
+      case 'dark': return 'Dark';
+      case 'system': return 'System';
+    }
+  };
+
   return (
     <header className="bg-[#fff8f6] dark:bg-[#201f1f] shadow-sm flex flex-wrap justify-between items-center w-full px-4 md:px-12 py-3.5 mx-auto z-10 sticky top-0 border-b border-[#f5ded6] dark:border-[#353534] gap-3 transition-colors">
       {/* Brand Title */}
@@ -72,13 +87,16 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        {/* Dark / Light Theme Toggle */}
+        {/* Theme Mode Toggle Button (Light / Dark / System) */}
         <button
-          onClick={toggleDarkMode}
-          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="p-2 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer"
+          onClick={cycleTheme}
+          title={`Current Mode: ${getThemeLabel()} (Click to switch)`}
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer text-xs font-semibold"
         >
-          {isDarkMode ? <Sun className="w-4 h-4 text-[#ffb599]" /> : <Moon className="w-4 h-4 text-amber-700" />}
+          {themeMode === 'light' && <Sun className="w-4 h-4 text-amber-700" />}
+          {themeMode === 'dark' && <Moon className="w-4 h-4 text-[#ffb599]" />}
+          {themeMode === 'system' && <Laptop className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+          <span className="hidden sm:inline">{getThemeLabel()}</span>
         </button>
 
         {/* New Topic Button */}
