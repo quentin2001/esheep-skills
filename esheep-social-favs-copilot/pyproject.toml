@@ -1,5 +1,5 @@
 [project]
-name = "esheep-social-radar"
+name = "esheep-social-favs-copilot"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
