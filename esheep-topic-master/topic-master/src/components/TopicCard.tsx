@@ -47,6 +47,15 @@ export const TopicCard: React.FC<TopicCardProps> = ({
     }
   };
 
+  const formatPlatform = (p?: string) => {
+    if (!p) return 'General';
+    if (p.includes('{') || p.includes('name')) {
+      if (p.toLowerCase().includes('cloudflare')) return 'Cloudflare Blog';
+      return 'AIHot';
+    }
+    return p;
+  };
+
   return (
     <div
       draggable
@@ -66,7 +75,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold">
-            {topic.platform}
+            {formatPlatform(topic.platform)}
           </span>
           <GripVertical className="w-4 h-4 text-[#5b4137]/40 group-hover:text-[#251914] dark:text-[#e4bfb1]/40 dark:group-hover:text-[#e5e2e1] transition-colors ml-1" />
         </div>

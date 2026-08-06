@@ -144,12 +144,17 @@ class AIHotAdapter:
             desc = item.get("description") or item.get("summary") or item.get("hook") or ""
             hot = item.get("hot") or item.get("hot_score") or item.get("views")
             hook = desc if desc else (f"热度: {hot}" if hot else "")
-            site = item.get("site") or item.get("source") or item.get("platform") or "aihot"
+            site_val = item.get("site") or item.get("source") or item.get("platform") or "aihot"
+            if isinstance(site_val, dict):
+                site_name = site_val.get("name") or site_val.get("title") or "aihot"
+            else:
+                site_name = str(site_val)
+
             results.append({
                 "title": title,
                 "source_title": title,
                 "source_url": url,
-                "source_platform": str(site).lower(),
+                "source_platform": site_name.strip(),
                 "source_type": "hotlist",
                 "hook": hook,
                 "category": "AI热点",
