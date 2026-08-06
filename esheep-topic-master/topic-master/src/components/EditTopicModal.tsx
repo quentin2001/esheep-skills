@@ -58,29 +58,35 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Flame className="w-3.5 h-3.5 text-[#ff5f00]" />
-            热榜新闻
+            热榜
           </span>
         );
       case 'social_fav':
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Bookmark className="w-3.5 h-3.5 text-[#a63b00]" />
-            平台对标
+            对标
           </span>
         );
       default:
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Lightbulb className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            灵光一现
+            灵感
           </span>
         );
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all">
-      <div className="bg-white dark:bg-[#131313] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative border border-[#f5ded6] dark:border-[#353534]">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-[#131313] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative border border-[#f5ded6] dark:border-[#353534]"
+      >
         {/* Header */}
         <div className="p-5 border-b border-[#f5ded6] dark:border-[#353534] flex justify-between items-center bg-[#fff8f6] dark:bg-[#1c1b1b]">
           <div className="flex items-center gap-3">
