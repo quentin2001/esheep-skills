@@ -5,8 +5,6 @@ import { Header } from './components/Header';
 import { KanbanBoard } from './components/KanbanBoard';
 import { EditTopicModal } from './components/EditTopicModal';
 import { NewTopicModal } from './components/NewTopicModal';
-import { SyncFavsModal } from './components/SyncFavsModal';
-import { AIGeneratorModal } from './components/AIGeneratorModal';
 
 export default function App() {
   // Load topics from backend API or fallback to localStorage / initial topics
@@ -109,8 +107,6 @@ export default function App() {
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
   const [newTopicInitialStatus, setNewTopicInitialStatus] = useState<TopicStatus>('unselected');
-  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-  const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
 
   // Handlers
   const handleMoveStatus = (id: string, newStatus: TopicStatus) => {
@@ -149,14 +145,6 @@ export default function App() {
     });
   };
 
-  const handleImportMultipleTopics = (newTopics: Topic[]) => {
-    setTopics((prev) => {
-      const updated = [...newTopics, ...prev];
-      syncToBackend(updated);
-      return updated;
-    });
-  };
-
   const handleQuickAdd = (status: TopicStatus) => {
     setNewTopicInitialStatus(status);
     setIsNewTopicOpen(true);
@@ -173,8 +161,6 @@ export default function App() {
         categories={categories}
         isDarkMode={isDarkMode}
         toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
-        onOpenSyncModal={() => setIsSyncModalOpen(true)}
-        onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
         onOpenNewTopic={() => {
           setNewTopicInitialStatus('unselected');
           setIsNewTopicOpen(true);
@@ -206,18 +192,6 @@ export default function App() {
         initialStatus={newTopicInitialStatus}
         onClose={() => setIsNewTopicOpen(false)}
         onAdd={handleAddTopic}
-      />
-
-      <SyncFavsModal
-        isOpen={isSyncModalOpen}
-        onClose={() => setIsSyncModalOpen(false)}
-        onImportFavs={handleImportMultipleTopics}
-      />
-
-      <AIGeneratorModal
-        isOpen={isAIGeneratorOpen}
-        onClose={() => setIsAIGeneratorOpen(false)}
-        onAddTopics={handleImportMultipleTopics}
       />
     </div>
   );

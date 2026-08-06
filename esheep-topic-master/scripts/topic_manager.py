@@ -32,6 +32,10 @@ class TopicManager:
         with open(self.data_file, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
+    def save_all(self, topics):
+        self._save(topics)
+        return True
+
     def add(
         self,
         title,
