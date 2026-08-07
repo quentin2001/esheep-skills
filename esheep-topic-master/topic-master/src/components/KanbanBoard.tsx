@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Topic, TopicStatus } from '../types';
 import { KanbanColumn } from './KanbanColumn';
 
@@ -19,6 +19,23 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   onMoveStatus,
   onDropTopic,
 }) => {
+  const [isNarrowScreen, setIsNarrowScreen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsNarrowScreen(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Adaptive dodge rule:
+  // - Narrow screen (< 1024px): Dodge immediately when dragging card to protect space.
+  // - Wide screen (>= 1024px): Dodge ONLY when mouse actually moves into the delete zone!
+  const shouldDodge = isNarrowScreen ? Boolean(isDraggingCard) : Boolean(isOverDeleteZone);
+
   const getTopicsByStatus = (status: TopicStatus) =>
     topics.filter((t) => t.status === status);
 
@@ -29,11 +46,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   return (
     <main
-      className={`flex-1 py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1650px] mx-auto items-start transition-all duration-300 ease-out ${
-        isDraggingCard
-          ? 'pl-16 sm:pl-24 md:pl-32 pr-5 sm:pr-8 md:pr-14'
-          : 'px-5 sm:px-8 md:px-14'
-      } ${isOverDeleteZone ? 'translate-x-2 md:translate-x-4 scale-[0.995]' : ''}`}
+      className={`flex-1 py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1650px] mx-auto items-start transition-all duration-300 ease-out px-5 sm:px-8 md:px-14 ${
+        shouldDodge
+          ? 'pl-16 sm:pl-24 md:pl-32 translate-x-2 md:translate-x-4 scale-[0.995]'
+          : ''
+      }`}
     >
       {/* Column 1: Unselected Topics */}
       <KanbanColumn
