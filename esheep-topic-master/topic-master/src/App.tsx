@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Topic, TopicStatus } from './types';
 import { INITIAL_TOPICS } from './data/initialTopics';
 import { Header } from './components/Header';
@@ -31,21 +31,32 @@ export default function App() {
   // Drag to delete zone state
   const [isDraggingCard, setIsDraggingCard] = useState(false);
   const [isOverDeleteZone, setIsOverDeleteZone] = useState(false);
+  const deleteZoneCounter = useRef(0);
+
+  const resetDragState = () => {
+    setIsDraggingCard(false);
+    setIsOverDeleteZone(false);
+    deleteZoneCounter.current = 0;
+  };
 
   useEffect(() => {
     const handleDragStart = () => {
       setIsDraggingCard(true);
     };
+
     const handleDragEnd = () => {
-      setIsDraggingCard(false);
-      setIsOverDeleteZone(false);
+      resetDragState();
     };
 
     window.addEventListener('dragstart', handleDragStart);
     window.addEventListener('dragend', handleDragEnd);
+    window.addEventListener('drop', handleDragEnd);
+    window.addEventListener('mouseup', handleDragEnd);
     return () => {
       window.removeEventListener('dragstart', handleDragStart);
       window.removeEventListener('dragend', handleDragEnd);
+      window.removeEventListener('drop', handleDragEnd);
+      window.removeEventListener('mouseup', handleDragEnd);
     };
   }, []);
 
@@ -142,6 +153,7 @@ export default function App() {
 
   // Handlers
   const handleMoveStatus = (id: string, newStatus: TopicStatus) => {
+    resetDragState();
     setTopics((prev) => {
       const updated = prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t));
       syncToBackend(updated);
@@ -150,6 +162,7 @@ export default function App() {
   };
 
   const handleDropTopic = (topicId: string, newStatus: TopicStatus) => {
+    resetDragState();
     handleMoveStatus(topicId, newStatus);
   };
 
@@ -162,6 +175,7 @@ export default function App() {
   };
 
   const handleDeleteTopic = (id: string) => {
+    resetDragState();
     setTopics((prev) => {
       const updated = prev.filter((t) => t.id !== id);
       syncToBackend(updated);
@@ -171,17 +185,31 @@ export default function App() {
 
   return (
     <div className="bg-[#FFF9E6] dark:bg-[#131313] text-[#251914] dark:text-[#E5E2E1] min-h-screen flex flex-col font-sans selection:bg-amber-200 dark:selection:bg-amber-900 selection:text-amber-900 transition-colors duration-200 relative">
-      {/* Left Drag to Delete Zone */}
+      {/* Top Header */}
+      <Header
+        themeMode={themeMode}
+        onThemeModeChange={setThemeMode}
+      />
+
+      {/* Left Drag to Delete Zone (Positioned BELOW header so Title is never obscured) */}
       {isDraggingCard && (
         <div
+          onDragEnter={(e) => {
+            e.preventDefault();
+            deleteZoneCounter.current += 1;
+            if (!isOverDeleteZone) setIsOverDeleteZone(true);
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            setIsOverDeleteZone(true);
           }}
           onDragLeave={(e) => {
             e.preventDefault();
-            setIsOverDeleteZone(false);
+            deleteZoneCounter.current -= 1;
+            if (deleteZoneCounter.current <= 0) {
+              deleteZoneCounter.current = 0;
+              setIsOverDeleteZone(false);
+            }
           }}
           onDrop={(e) => {
             e.preventDefault();
@@ -189,37 +217,41 @@ export default function App() {
             if (topicId) {
               handleDeleteTopic(topicId);
             }
-            setIsDraggingCard(false);
-            setIsOverDeleteZone(false);
+            resetDragState();
           }}
-          className={`fixed left-0 top-0 bottom-0 z-40 w-36 md:w-56 flex flex-col items-center justify-center transition-all duration-300 ${
+          className={`fixed left-0 top-[68px] bottom-0 z-30 w-44 md:w-64 flex flex-col items-center justify-center transition-all duration-300 pointer-events-auto ${
             isOverDeleteZone
-              ? 'bg-gradient-to-r from-red-600/90 via-red-500/50 to-transparent border-r-4 border-red-500 shadow-2xl backdrop-blur-sm'
-              : 'bg-gradient-to-r from-red-500/40 via-red-500/15 to-transparent backdrop-blur-[1px]'
+              ? 'bg-gradient-to-r from-red-500/20 via-red-500/5 to-transparent'
+              : 'bg-gradient-to-r from-[#ff5f00]/10 via-[#ff5f00]/2 to-transparent'
           }`}
         >
+          {/* Floating Trash Card */}
           <div
-            className={`flex flex-col items-center gap-3.5 p-4 rounded-2xl transition-all duration-200 ${
+            className={`pointer-events-none flex flex-col items-center gap-2.5 p-4 md:p-5 rounded-2xl backdrop-blur-sm transition-all duration-300 border ${
               isOverDeleteZone
-                ? 'scale-125 text-white animate-bounce'
-                : 'text-red-600 dark:text-red-400'
+                ? 'scale-110 bg-red-500 text-white border-red-500 shadow-xl shadow-red-500/30'
+                : 'bg-white/80 dark:bg-[#1f1e1e]/80 border-[#f5ded6] dark:border-[#353534] shadow-md text-[#5b4137] dark:text-[#e4bfb1]'
             }`}
           >
-            <div className={`p-4 rounded-full ${isOverDeleteZone ? 'bg-red-600 shadow-lg' : 'bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800'}`}>
-              <Trash2 className="w-8 h-8 md:w-10 md:h-10 drop-shadow" />
+            <div
+              className={`p-3 rounded-full transition-colors duration-200 ${
+                isOverDeleteZone
+                  ? 'bg-white text-red-600 shadow-sm'
+                  : 'bg-[#ffe9e2] dark:bg-[#2a2a2a] text-[#ff5f00]'
+              }`}
+            >
+              <Trash2 className="w-6 h-6 md:w-8 md:h-8" />
             </div>
-            <span className="font-bold text-xs md:text-sm tracking-wider whitespace-nowrap drop-shadow">
-              {isOverDeleteZone ? '松开立即删除' : '拖至此处删除'}
+            <span
+              className={`font-bold text-xs md:text-sm tracking-wide whitespace-nowrap ${
+                isOverDeleteZone ? 'text-white font-extrabold' : 'text-[#5b4137] dark:text-[#e4bfb1]'
+              }`}
+            >
+              {isOverDeleteZone ? '松开即可删除' : '拖至此处删除'}
             </span>
           </div>
         </div>
       )}
-
-      {/* Top Header */}
-      <Header
-        themeMode={themeMode}
-        onThemeModeChange={setThemeMode}
-      />
 
       {/* Main Kanban Board */}
       <KanbanBoard

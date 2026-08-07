@@ -197,7 +197,7 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
           {/* Unified Content/Notes Textarea */}
           <div className="flex flex-col gap-1 flex-1">
             <label className="font-semibold text-xs text-[#5b4137] dark:text-[#e4bfb1]">
-              Topic Details & Notes (Hook / 视角 / 大纲 / 笔记)
+              选题思考与笔记 (Notes & Outline)
             </label>
             <textarea
               rows={6}

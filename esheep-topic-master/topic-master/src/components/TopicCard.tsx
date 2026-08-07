@@ -5,118 +5,76 @@ import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink } from 'lucide-r
 interface TopicCardProps {
   topic: Topic;
   onEdit: (topic: Topic, rect?: DOMRect) => void;
-  onMoveStatus: (id: string, newStatus: TopicStatus) => void;
-  onDragStart: (e: React.DragEvent, id: string) => void;
-  onDragEnd: (e: React.DragEvent) => void;
+  onMoveStatus: (id: string, status: TopicStatus) => void;
+  onDelete: (id: string) => void;
+  onDragStart?: (e: React.DragEvent, id: string) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
 }
 
 export const TopicCard: React.FC<TopicCardProps> = ({
   topic,
   onEdit,
   onMoveStatus,
+  onDelete,
   onDragStart,
   onDragEnd,
 }) => {
-  const isCompleted = topic.status === 'completed';
-  const isInProgress = topic.status === 'in_progress';
-  const isSelected = topic.status === 'selected';
-
-  const renderSourceBadge = () => {
-    switch (topic.source_type) {
-      case 'hotlist':
-        return (
-          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
-            <Flame className="w-3 h-3 text-[#ff5f00]" />
-            热榜
-          </span>
-        );
-      case 'social_fav':
-        return (
-          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
-            <Bookmark className="w-3 h-3 text-[#a63b00]" />
-            对标
-          </span>
-        );
-      default:
-        return (
-          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
-            <Lightbulb className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-            灵感
-          </span>
-        );
-    }
-  };
-
-  const formatPlatform = (p?: string) => {
-    if (!p) return 'General';
-    if (p.includes('{') || p.includes('name')) {
-      if (p.toLowerCase().includes('cloudflare')) return 'Cloudflare Blog';
-      return 'AIHot';
-    }
-    return p;
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    onEdit(topic, rect);
   };
 
   return (
     <div
       draggable
-      onDragStart={(e) => onDragStart(e, topic.id)}
-      onDragEnd={onDragEnd}
-      onClick={(e) => onEdit(topic, e.currentTarget.getBoundingClientRect())}
-      className={`group relative bg-white dark:bg-[#0e0e0e] rounded-xl p-4 shadow-ambient hover:shadow-floating transition-all duration-200 cursor-grab active:cursor-grabbing border ${
-        isSelected
-          ? 'border-t-4 border-t-[#ff5f00] border-x-[#f5ded6] border-b-[#f5ded6] dark:border-x-[#353534] dark:border-b-[#353534]'
-          : 'border-[#f5ded6] dark:border-[#353534] hover:border-[#f8be00] dark:hover:border-[#ff5f00]/60'
-      } ${isCompleted ? 'opacity-80' : ''}`}
+      onDragStart={(e) => onDragStart && onDragStart(e, topic.id)}
+      onDragEnd={(e) => onDragEnd && onDragEnd(e)}
+      className="bg-white dark:bg-[#131313] rounded-xl shadow-lg border border-[#f5ded6] dark:border-[#353534] transition-transform hover:scale-[1.02] hover:shadow-xl cursor-grab active:cursor-grabbing"
+      onDoubleClick={handleDoubleClick}
     >
-      {/* Top badges bar */}
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-1.5">
-          {renderSourceBadge()}
+      {/* Header */}
+      <div className="flex justify-between items-center p-3 border-b border-[#f5ded6] dark:border-[#353534]">
+        <div className="flex items-center gap-2">
+          {/* Platform Badge */}
+          <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent">
+            {topic.platform}
+          </span>
+          <h3 className="font-bold text-sm text-[#251914] dark:text-[#e5e2e1] truncate max-w-[120px]">
+            {topic.title}
+          </h3>
         </div>
-        <div className="flex items-center gap-1.5">
-          {topic.source_url && (
-            <a
-              href={topic.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-[#ff5f00] hover:underline text-xs font-bold flex items-center gap-0.5 mr-1"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>源链接</span>
-            </a>
-          )}
-          <GripVertical className="w-4 h-4 text-[#5b4137]/40 group-hover:text-[#251914] dark:text-[#e4bfb1]/40 dark:group-hover:text-[#e5e2e1] transition-colors" />
-        </div>
+        {/* Source Link moved to top-right */}
+        {topic.source && (
+          <a
+            href={topic.source}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#ff5f00] hover:underline text-xs flex items-center gap-1"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>源链接 ↗</span>
+          </a>
+        )}
       </div>
 
-      {/* Card Title */}
-      <h3
-        className={`font-bold text-lg md:text-xl text-[#251914] dark:text-[#e5e2e1] mb-1.5 line-clamp-2 leading-snug ${
-          isCompleted ? 'line-through text-[#5b4137] dark:text-[#e4bfb1]' : ''
-        }`}
-      >
-        {topic.title}
-      </h3>
-
-      {/* Progress Bar for In Progress items */}
-      {isInProgress && (
-        <div className="w-full h-2 bg-[#f5ded6] dark:bg-[#353534] rounded-full my-2.5 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-[#f8be00] to-[#ff5f00] rounded-full transition-all duration-300"
-            style={{ width: `${topic.progress ?? 60}%` }}
-          />
+      {/* Footer */}
+      <div className="flex justify-between items-center p-2 text-xs text-[#5b4137] dark:text-[#e4bfb1] bg-[#fff8f6] dark:bg-[#1c1b1b] border-t border-[#f5ded6] dark:border-[#353534]">
+        <span>创建时间: {topic.date}</span>
+        {/* Actions */}
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => onMoveStatus(topic.id, 'selected')}
+            className="text-[#5b4137] hover:text-[#251914] dark:text-[#e4bfb1] dark:hover:text-white transition-colors p-1 rounded-lg hover:bg-[#f5ded6]/50 dark:hover:bg-[#353534]"
+          >
+            <Flame className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(topic.id)}
+            className="text-[#ba1a1a] hover:text-[#ff5f00] transition-colors p-1 rounded-lg"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
-      )}
-
-      {/* Footer: Platform Name and Date */}
-      <div className="flex justify-between items-center pt-1.5 border-t border-[#f5ded6]/60 dark:border-[#353534]/60">
-        <span className="text-[#5b4137] dark:text-[#e4bfb1] text-xs font-semibold">
-          {formatPlatform(topic.platform)}
-        </span>
-        <span className="text-xs text-[#a63b00] dark:text-[#ab8a7d] whitespace-nowrap font-semibold">
-          {topic.date}
-        </span>
       </div>
     </div>
   );
