@@ -3,7 +3,7 @@ export type Language = 'zh' | 'en';
 export const translations = {
   zh: {
     // Header
-    appTitle: 'Topic Master 选题大师',
+    appTitle: 'Topic Master',
     themeLight: '浅色模式',
     themeDark: '深色模式',
     themeSystem: '跟随系统',

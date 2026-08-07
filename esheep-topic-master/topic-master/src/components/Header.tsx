@@ -37,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Brand Title */}
       <div className="flex items-center gap-3">
         <span className="font-extrabold text-2xl md:text-3xl text-[#ff5f00] dark:text-[#ffb599] tracking-tight font-heading">
-          {lang === 'zh' ? 'Topic Master 选题大师' : 'Topic Master'}
+          Topic Master
         </span>
       </div>
 
