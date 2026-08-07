@@ -219,10 +219,12 @@ export default function App() {
             }
             resetDragState();
           }}
-          className={`fixed left-0 top-[68px] bottom-0 z-30 w-44 md:w-64 flex flex-col items-center justify-center transition-all duration-300 pointer-events-auto ${
+          className={`fixed left-0 top-[68px] bottom-0 z-30 ${
+            isOverDeleteZone ? 'w-24 md:w-32' : 'w-16 md:w-20'
+          } flex flex-col items-center justify-center transition-all duration-300 pointer-events-auto ${
             isOverDeleteZone
-              ? 'bg-gradient-to-r from-red-500/20 via-red-500/5 to-transparent'
-              : 'bg-gradient-to-r from-[#ff5f00]/10 via-[#ff5f00]/2 to-transparent'
+              ? 'bg-gradient-to-r from-red-500/25 via-red-500/8 to-transparent'
+              : 'bg-gradient-to-r from-[#ff5f00]/12 via-[#ff5f00]/3 to-transparent'
           }`}
         >
           {/* Pure Trash Icon (No border, background box, or text) */}
