@@ -227,15 +227,20 @@ export default function App() {
               : 'bg-gradient-to-r from-[#ff5f00]/12 via-[#ff5f00]/3 to-transparent'
           }`}
         >
-          {/* Pure Trash Icon (No border, background box, or text) */}
-          <div
-            className={`pointer-events-none transition-all duration-300 ${
-              isOverDeleteZone
-                ? 'scale-125 text-red-600 dark:text-red-500 drop-shadow-md'
-                : 'scale-100 text-red-500/60 dark:text-red-400/60'
-            }`}
-          >
-            <Trash2 className="w-10 h-10 md:w-12 md:h-12" />
+          {/* Pure Trash Icon with Magnetic Tilt & Pulsing Ring (No border, box, or text) */}
+          <div className="relative pointer-events-none flex items-center justify-center">
+            {isOverDeleteZone && (
+              <div className="absolute w-14 h-14 md:w-16 md:h-16 rounded-full bg-red-500/20 blur-md animate-ping" />
+            )}
+            <div
+              className={`transition-all duration-300 ease-out ${
+                isOverDeleteZone
+                  ? 'scale-125 text-red-600 dark:text-red-500 drop-shadow-xl -rotate-12'
+                  : 'scale-100 text-red-500/60 dark:text-red-400/60'
+              }`}
+            >
+              <Trash2 className="w-10 h-10 md:w-12 md:h-12" />
+            </div>
           </div>
         </div>
       )}
@@ -243,6 +248,8 @@ export default function App() {
       {/* Main Kanban Board */}
       <KanbanBoard
         topics={topics}
+        isDraggingCard={isDraggingCard}
+        isOverDeleteZone={isOverDeleteZone}
         onEditTopic={(t, rect) => setEditingTarget({ topic: t, rect })}
         onMoveStatus={handleMoveStatus}
         onDropTopic={handleDropTopic}
