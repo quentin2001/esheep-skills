@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Topic, TopicStatus } from '../types';
 import { KanbanColumn } from './KanbanColumn';
 import { Language, translations } from '../i18n';
@@ -24,6 +24,37 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 }) => {
   const t = translations[lang];
 
+  // Fullscreen / Wide Screen Detector
+  const [isFullScreenOrWide, setIsFullScreenOrWide] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const isFS = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement);
+    const isWide = window.innerWidth >= 1400;
+    return isFS || isWide;
+  });
+
+  useEffect(() => {
+    const handleCheck = () => {
+      const isFS = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      const isWide = window.innerWidth >= 1400;
+      setIsFullScreenOrWide(isFS || isWide);
+    };
+
+    window.addEventListener('resize', handleCheck);
+    document.addEventListener('fullscreenchange', handleCheck);
+    document.addEventListener('webkitfullscreenchange', handleCheck);
+
+    return () => {
+      window.removeEventListener('resize', handleCheck);
+      document.removeEventListener('fullscreenchange', handleCheck);
+      document.removeEventListener('webkitfullscreenchange', handleCheck);
+    };
+  }, []);
+
+  // Dodge rule:
+  // - If Fullscreen or Wide screen (>= 1400px): Space is plenty, DO NOT DODGE (shouldDodge = false)!
+  // - If Non-fullscreen / Narrow window (< 1400px): Space is tight, DODGE ON DRAGGING to protect space!
+  const shouldDodge = isFullScreenOrWide ? false : Boolean(isDraggingCard);
+
   const getTopicsByStatus = (status: TopicStatus) =>
     topics.filter((t) => t.status === status);
 
@@ -34,11 +65,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   return (
     <main
-      className={`flex-1 py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1650px] mx-auto items-start transition-all duration-300 ease-out ${
-        isDraggingCard
+      className={`flex-1 py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 w-full max-w-[1650px] mx-auto items-start transition-all duration-300 ease-out px-5 sm:px-8 md:px-14 ${
+        shouldDodge
           ? 'pl-24 sm:pl-32 md:pl-40 pr-5 sm:pr-8 md:pr-14'
-          : 'px-5 sm:px-8 md:px-14'
-      } ${isOverDeleteZone ? 'translate-x-4 md:translate-x-8 scale-[0.99]' : ''}`}
+          : ''
+      } ${isOverDeleteZone ? 'translate-x-3 md:translate-x-6 scale-[0.995]' : ''}`}
     >
       {/* Column 1: Unselected Topics */}
       <KanbanColumn
