@@ -1,0 +1,6 @@
+{
+  "name": "Topic Master",
+  "description": "A topic management and Kanban board application for content creators to curate, plan, and outline content across social platforms.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
