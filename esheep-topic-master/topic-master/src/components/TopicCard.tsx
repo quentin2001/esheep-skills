@@ -1,6 +1,6 @@
 import React from 'react';
 import { Topic, TopicStatus } from '../types';
-import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink } from 'lucide-react';
+import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink, Trash2 } from 'lucide-react';
 
 interface TopicCardProps {
   topic: Topic;
