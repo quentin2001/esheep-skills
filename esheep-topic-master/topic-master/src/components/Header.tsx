@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Laptop, Languages } from 'lucide-react';
+import { Sun, Moon, Laptop } from 'lucide-react';
 import { ThemeMode } from '../App';
 import { Language, translations } from '../i18n';
 
@@ -42,22 +42,21 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Control Buttons (Language Toggle on the left, Theme Mode on the right) */}
-      <div className="flex items-center gap-2.5">
-        {/* Language Switch Button */}
+      <div className="flex items-center gap-2">
+        {/* Language Switch Button (Identical size, shape & color as Theme Mode Button) */}
         <button
           onClick={onLangToggle}
           title={`Language: ${lang === 'zh' ? '中文 (Click for English)' : 'English (点击切换为中文)'}`}
-          className="px-3 py-2 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center gap-1.5 font-bold text-xs"
+          className="w-9 h-9 p-2.5 bg-[#f5ded6] dark:bg-[#2a2a2a] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center justify-center font-black text-xs leading-none select-none text-amber-700 dark:text-[#ffb599]"
         >
-          <Languages className="w-4 h-4 text-[#ff5f00] dark:text-[#ffb599]" />
-          <span>{lang === 'zh' ? '中 / EN' : 'EN / 中'}</span>
+          <span>{lang === 'zh' ? '中' : 'EN'}</span>
         </button>
 
         {/* Theme Mode Toggle Button */}
         <button
           onClick={cycleTheme}
           title={`${t.themeLight}/${t.themeDark}: ${getThemeLabel()}`}
-          className="p-2.5 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center justify-center"
+          className="w-9 h-9 p-2.5 bg-[#f5ded6] dark:bg-[#2a2a2a] text-[#251914] dark:text-[#e5e2e1] rounded-lg shadow-ambient hover:scale-95 transition-transform border border-transparent dark:border-[#353534] cursor-pointer flex items-center justify-center"
         >
           {themeMode === 'light' && <Sun className="w-4 h-4 text-amber-700" />}
           {themeMode === 'dark' && <Moon className="w-4 h-4 text-[#ffb599]" />}
