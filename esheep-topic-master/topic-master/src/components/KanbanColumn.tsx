@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Topic, TopicStatus } from '../types';
 import { TopicCard } from './TopicCard';
+import { Language, translations } from '../i18n';
 
 interface KanbanColumnProps {
   title: string;
@@ -8,6 +9,7 @@ interface KanbanColumnProps {
   count: number;
   topics: Topic[];
   borderStyle: string;
+  lang?: Language;
   onEditTopic: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDropTopic: (topicId: string, newStatus: TopicStatus) => void;
@@ -19,10 +21,12 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   count,
   topics,
   borderStyle,
+  lang = 'zh',
   onEditTopic,
   onMoveStatus,
   onDropTopic,
 }) => {
+  const t = translations[lang];
   const [isDragOver, setIsDragOver] = useState(false);
   const dragCounter = useRef(0);
 
@@ -100,6 +104,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
           <TopicCard
             key={topic.id}
             topic={topic}
+            lang={lang}
             onEdit={onEditTopic}
             onMoveStatus={onMoveStatus}
             onDragStart={handleDragStart}
@@ -110,13 +115,13 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
         {/* Dashed Drop Target Placeholder when dragging over */}
         {isDragOver && (
           <div className="w-full h-28 border-2 border-dashed border-[#ff5f00] rounded-xl flex items-center justify-center text-xs font-bold text-[#ff5f00] bg-[#ff5f00]/10 animate-pulse">
-            Drop topic here
+            {t.dropTopicHere}
           </div>
         )}
 
         {topics.length === 0 && !isDragOver && (
           <div className="border-2 border-dashed border-[#f5ded6] dark:border-[#353534] rounded-xl p-6 text-center text-[#5b4137]/60 dark:text-[#e4bfb1]/50 text-sm">
-            Drag cards here
+            {t.dragCardsHere}
           </div>
         )}
       </div>

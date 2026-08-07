@@ -1,11 +1,13 @@
 import React from 'react';
 import { Topic, TopicStatus } from '../types';
 import { KanbanColumn } from './KanbanColumn';
+import { Language, translations } from '../i18n';
 
 interface KanbanBoardProps {
   topics: Topic[];
   isDraggingCard?: boolean;
   isOverDeleteZone?: boolean;
+  lang?: Language;
   onEditTopic: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDropTopic: (topicId: string, newStatus: TopicStatus) => void;
@@ -15,10 +17,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   topics,
   isDraggingCard,
   isOverDeleteZone,
+  lang = 'zh',
   onEditTopic,
   onMoveStatus,
   onDropTopic,
 }) => {
+  const t = translations[lang];
+
   const getTopicsByStatus = (status: TopicStatus) =>
     topics.filter((t) => t.status === status);
 
@@ -37,11 +42,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     >
       {/* Column 1: Unselected Topics */}
       <KanbanColumn
-        title="Unselected Topics"
+        title={t.colUnselected}
         status="unselected"
         count={unselectedList.length}
         topics={unselectedList}
         borderStyle="border-t-4 border-[#e4bfb1] dark:border-[#5b4137]"
+        lang={lang}
         onEditTopic={onEditTopic}
         onMoveStatus={onMoveStatus}
         onDropTopic={onDropTopic}
@@ -49,11 +55,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
       {/* Column 2: Selected Topics */}
       <KanbanColumn
-        title="Selected Topics"
+        title={t.colSelected}
         status="selected"
         count={selectedList.length}
         topics={selectedList}
         borderStyle="border-t-4 border-[#ff5f00] dark:border-[#ff5f00]"
+        lang={lang}
         onEditTopic={onEditTopic}
         onMoveStatus={onMoveStatus}
         onDropTopic={onDropTopic}
@@ -61,11 +68,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
       {/* Column 3: In Progress */}
       <KanbanColumn
-        title="In Progress"
+        title={t.colInProgress}
         status="in_progress"
         count={inProgressList.length}
         topics={inProgressList}
         borderStyle="border-t-4 border-[#a63b00] dark:border-[#ffb599]"
+        lang={lang}
         onEditTopic={onEditTopic}
         onMoveStatus={onMoveStatus}
         onDropTopic={onDropTopic}
@@ -73,11 +81,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
       {/* Column 4: Completed */}
       <KanbanColumn
-        title="Completed"
+        title={t.colCompleted}
         status="completed"
         count={completedList.length}
         topics={completedList}
         borderStyle="opacity-75 border-t-4 border-[#8f7065] dark:border-[#353534]"
+        lang={lang}
         onEditTopic={onEditTopic}
         onMoveStatus={onMoveStatus}
         onDropTopic={onDropTopic}

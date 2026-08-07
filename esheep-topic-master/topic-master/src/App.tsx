@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import { KanbanBoard } from './components/KanbanBoard';
 import { EditTopicModal } from './components/EditTopicModal';
 import { Trash2 } from 'lucide-react';
+import { Language } from './i18n';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -27,6 +28,19 @@ export default function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     return (localStorage.getItem('topic_master_theme_mode') as ThemeMode) || 'system';
   });
+
+  // Language state (zh, en)
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('topic_master_lang') as Language) || 'zh';
+  });
+
+  const handleLangToggle = () => {
+    setLang((prev) => {
+      const next = prev === 'zh' ? 'en' : 'zh';
+      localStorage.setItem('topic_master_lang', next);
+      return next;
+    });
+  };
 
   // Drag to delete zone state
   const [isDraggingCard, setIsDraggingCard] = useState(false);
@@ -188,10 +202,12 @@ export default function App() {
       {/* Top Header */}
       <Header
         themeMode={themeMode}
+        lang={lang}
         onThemeModeChange={setThemeMode}
+        onLangToggle={handleLangToggle}
       />
 
-      {/* Left Drag to Delete Zone (Positioned BELOW header so Title is never obscured) */}
+      {/* Left Drag to Delete Zone */}
       {isDraggingCard && (
         <div
           onDragEnter={(e) => {
@@ -250,6 +266,7 @@ export default function App() {
         topics={topics}
         isDraggingCard={isDraggingCard}
         isOverDeleteZone={isOverDeleteZone}
+        lang={lang}
         onEditTopic={(t, rect) => setEditingTarget({ topic: t, rect })}
         onMoveStatus={handleMoveStatus}
         onDropTopic={handleDropTopic}
@@ -260,6 +277,7 @@ export default function App() {
         topic={editingTarget?.topic || null}
         cardRect={editingTarget?.rect || null}
         isOpen={Boolean(editingTarget)}
+        lang={lang}
         onClose={() => setEditingTarget(null)}
         onSave={handleSaveTopic}
         onDelete={handleDeleteTopic}

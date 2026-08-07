@@ -1,9 +1,11 @@
 import React from 'react';
 import { Topic, TopicStatus } from '../types';
 import { GripVertical, Flame, Bookmark, Lightbulb, ExternalLink } from 'lucide-react';
+import { Language, translations } from '../i18n';
 
 interface TopicCardProps {
   topic: Topic;
+  lang?: Language;
   onEdit: (topic: Topic, rect?: DOMRect) => void;
   onMoveStatus: (id: string, newStatus: TopicStatus) => void;
   onDragStart: (e: React.DragEvent, id: string) => void;
@@ -12,11 +14,13 @@ interface TopicCardProps {
 
 export const TopicCard: React.FC<TopicCardProps> = ({
   topic,
+  lang = 'zh',
   onEdit,
   onMoveStatus,
   onDragStart,
   onDragEnd,
 }) => {
+  const t = translations[lang];
   const isCompleted = topic.status === 'completed';
   const isInProgress = topic.status === 'in_progress';
   const isSelected = topic.status === 'selected';
@@ -32,21 +36,21 @@ export const TopicCard: React.FC<TopicCardProps> = ({
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Flame className="w-3 h-3 text-[#ff5f00]" />
-            热榜
+            {t.badgeHotlist}
           </span>
         );
       case 'social_fav':
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e5e2e1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Bookmark className="w-3 h-3 text-[#a63b00]" />
-            对标
+            {t.badgeBenchmark}
           </span>
         );
       default:
         return (
           <span className="bg-[#ffe9e2] dark:bg-[#201f1f] text-[#5b4137] dark:text-[#e4bfb1] font-semibold text-xs px-2.5 py-1 rounded-full border border-[#f5ded6] dark:border-transparent flex items-center gap-1">
             <Lightbulb className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-            灵感
+            {t.badgeInspiration}
           </span>
         );
     }
@@ -88,7 +92,7 @@ export const TopicCard: React.FC<TopicCardProps> = ({
               className="text-[#ff5f00] hover:underline text-xs font-bold flex items-center gap-0.5 mr-1"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>源链接</span>
+              <span>{t.sourceLink}</span>
             </a>
           )}
           <GripVertical className="w-4 h-4 text-[#5b4137]/40 group-hover:text-[#251914] dark:text-[#e4bfb1]/40 dark:group-hover:text-[#e5e2e1] transition-colors" />
