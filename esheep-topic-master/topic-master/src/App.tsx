@@ -225,30 +225,15 @@ export default function App() {
               : 'bg-gradient-to-r from-[#ff5f00]/10 via-[#ff5f00]/2 to-transparent'
           }`}
         >
-          {/* Floating Trash Card */}
+          {/* Pure Trash Icon (No border, background box, or text) */}
           <div
-            className={`pointer-events-none flex flex-col items-center gap-2.5 p-4 md:p-5 rounded-2xl backdrop-blur-sm transition-all duration-300 border ${
+            className={`pointer-events-none transition-all duration-300 ${
               isOverDeleteZone
-                ? 'scale-110 bg-red-500 text-white border-red-500 shadow-xl shadow-red-500/30'
-                : 'bg-white/80 dark:bg-[#1f1e1e]/80 border-[#f5ded6] dark:border-[#353534] shadow-md text-[#5b4137] dark:text-[#e4bfb1]'
+                ? 'scale-125 text-red-600 dark:text-red-500 drop-shadow-md'
+                : 'scale-100 text-red-500/60 dark:text-red-400/60'
             }`}
           >
-            <div
-              className={`p-3 rounded-full transition-colors duration-200 ${
-                isOverDeleteZone
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'bg-[#ffe9e2] dark:bg-[#2a2a2a] text-[#ff5f00]'
-              }`}
-            >
-              <Trash2 className="w-6 h-6 md:w-8 md:h-8" />
-            </div>
-            <span
-              className={`font-bold text-xs md:text-sm tracking-wide whitespace-nowrap ${
-                isOverDeleteZone ? 'text-white font-extrabold' : 'text-[#5b4137] dark:text-[#e4bfb1]'
-              }`}
-            >
-              {isOverDeleteZone ? '松开即可删除' : '拖至此处删除'}
-            </span>
+            <Trash2 className="w-10 h-10 md:w-12 md:h-12" />
           </div>
         </div>
       )}
