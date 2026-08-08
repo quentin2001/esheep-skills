@@ -34,12 +34,11 @@ This Skill requires **Google Chrome** (or Chromium-based browser) as the primary
 The user will interact with you **purely through chat messages**. You must automatically execute the required background commands using `run_command` without asking the user to use the command line.
 
 ### Scenario A: Initial Login or Changing Accounts
-When the user wants to set up or change accounts for specific platforms (e.g., "帮我绑定小红书 Cookie", "换一个B站账号"):
-- **Option 1 (Direct Cookie Paste in Chat)**: Ask the user to paste their browser cookie string directly in chat. Once provided, run `python scripts/set_cookie.py <platform> "<cookie_string>"`.
-- **Option 2 (Automatic Browser Launch)**: Run `python scripts/login_helper.py --platform <platform>` to pop up Chromium. Prompt the user: "已为你尝试打开 [<platform>] 的登录窗口，完成后请告诉我‘登录完成了’。"
+When the user wants to set up or change accounts for specific platforms (e.g., "帮我登录抖音", "换一个B站账号"):
+- Run `python scripts/login_helper.py --platform <platform>` to launch Chromium. Prompt the user: "已为你打开 [<platform>] 的登录窗口，完成后请告诉我‘登录完成了’。"
 
 ### Scenario B: Selective Platform Scanning
-When the user asks to fetch likes/favorites from specific platforms (e.g., "只抓取小红书和抖音", "查看B站近期的收藏"):
+When the user asks to fetch likes/favorites from specific platforms (e.g., "只抓取抖音和X", "查看B站近期的收藏"):
 1. Parse the requested platforms.
 2. Execute `python scripts/fetcher.py --platform <platform>` for each requested platform.
 3. Read `data/raw_favs.json` and process newly added entries.
@@ -63,7 +62,7 @@ If the user has a large volume of likes and bookmarks, apply the following filte
 
 ## Strict Anti-Hallucination & Truthfulness Rule
 
-> **CRITICAL**: Never generate synthetic/mock post items, fake titles, or dead dummy URLs (such as `xiaohongshu.com/explore/65ab1234...` or `douyin.com/video/731234...`) when `data/raw_favs.json` returns 0 items. 
+> **CRITICAL**: Never generate synthetic/mock post items, fake titles, or dead dummy URLs (such as `douyin.com/video/731234...` or `x.com/username/status/123...`) when `data/raw_favs.json` returns 0 items. 
 > 
 > If no real items are found for a requested platform or filter:
 > 1. Report the exact status truthfully: "未能在 [<Platform>] 的真实记录中抓取到符合条件的内容/登录会话失效已重定向"。
@@ -73,7 +72,7 @@ If the user has a large volume of likes and bookmarks, apply the following filte
 
 Read and inspect `data/raw_favs.json` to find unprocessed or newly added items. Each item contains:
 - `id`: Platform-prefixed unique ID
-- `platform`: Platform name (`bilibili`, `zhihu`, `xiaohongshu`, `douyin`, `x`)
+- `platform`: Platform name (`bilibili`, `zhihu`, `douyin`, `x`)
 - `action_type`: `favorite` or `like`
 - `title`: Post title or summary
 - `url`: Direct post link
@@ -94,7 +93,7 @@ For each new item (or cluster of related posts), perform content reverse enginee
    - **Angle 2: Pitfalls / Counter-Intuitive Viewpoint**: Common mistakes, myth-busting, or controversial perspectives.
    - **Angle 3: Case Study / Debate**: Deep-dive analysis, comparison, or real-world application story.
 4. **Title Suggestions**:
-   - Provide 3 catchy, high-CTR title options tailored for platforms like Xiaohongshu, Bilibili, or Zhihu.
+   - Provide 3 catchy, high-CTR title options tailored for platforms like Douyin, Bilibili, or Zhihu.
 
 ### 4. Output Formatting & Database Append
 
@@ -122,8 +121,7 @@ Append each processed topic idea into `data/content_ideas_database.md` using the
 
 | Command | Purpose |
 |---------|---------|
-| `python scripts/login_helper.py --platform <name>` | Save browser login state for a platform |
-| `python scripts/fetcher.py --platform all` | Scrape latest likes/favorites across all platforms using MediaCrawler CDP Engine |
-| `python scripts/fetcher.py --platform xiaohongshu --limit 5` | Scrape latest 5 items from Xiaohongshu |
-| `python scripts/fetcher.py --platform douyin --limit 5` | Scrape latest 5 items from Douyin |
-| `python scripts/fetcher.py --platform <name> --no-cdp` | Fallback to Playwright persistent context mode |
+| `python scripts/login_helper.py --platform <name>` | Save browser login state for a platform (`douyin`, `x`, `bilibili`, `zhihu`) |
+| `python scripts/fetcher.py --platform all` | Scrape latest likes/favorites across all active platforms |
+| `python scripts/fetcher.py --platform douyin --limit 20` | Scrape latest 20 items from Douyin |
+| `python scripts/fetcher.py --platform x --limit 20` | Scrape latest 20 items from X (Twitter) |
