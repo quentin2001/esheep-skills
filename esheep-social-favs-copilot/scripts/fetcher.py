@@ -56,34 +56,6 @@ def extract_items_from_json(platform: str, json_data: dict, action_type: str = "
                         "url": f"https://www.douyin.com/video/{vid_id}"
                     }))
 
-    # Xiaohongshu API: notes / items / data / collect_notes
-    notes_list = json_data.get("notes") or json_data.get("items") or json_data.get("collect_notes")
-    if not notes_list and isinstance(json_data.get("data"), dict):
-        d_obj = json_data.get("data", {})
-        notes_list = d_obj.get("notes") or d_obj.get("items") or d_obj.get("collect_notes") or d_obj.get("notes_list")
-
-    if isinstance(notes_list, list):
-        for note in notes_list:
-            if isinstance(note, dict):
-                note_id = note.get("note_id") or note.get("id") or note.get("noteId")
-                display_title = note.get("display_title") or note.get("title") or note.get("desc")
-                xsec_token = note.get("xsec_token") or note.get("xsecToken") or ""
-                
-                if note_id and display_title:
-                    note_id_str = str(note_id)
-                    if xsec_token:
-                        full_url = f"https://www.xiaohongshu.com/explore/{note_id_str}?xsec_token={xsec_token}&xsec_source=pc_feed"
-                    else:
-                        full_url = f"https://www.xiaohongshu.com/explore/{note_id_str}"
-                        
-                    items.append(parse_raw_item({
-                        "platform": "xiaohongshu",
-                        "action_type": action_type,
-                        "id": note_id_str,
-                        "title": str(display_title).strip(),
-                        "url": full_url
-                    }))
-
     return items
 
 def is_cdp_port_active(port: int = CDP_PORT) -> bool:

@@ -44,7 +44,7 @@ def test_fetch_platform_missing_session(tmp_path, monkeypatch):
     result = fetch_platform("bilibili", use_cdp=False)
     assert isinstance(result, list)
 
-def test_extract_items_from_json_xiaohongshu_xsec_token():
+def test_extract_items_from_json_xiaohongshu_disabled():
     from scripts.fetcher import extract_items_from_json
     json_data = {
         "notes": [
@@ -56,10 +56,7 @@ def test_extract_items_from_json_xiaohongshu_xsec_token():
         ]
     }
     items = extract_items_from_json("xiaohongshu", json_data, action_type="favorite")
-    assert len(items) == 1
-    assert items[0]["id"] == "xiaohongshu_6a4dcb610000000017008e92"
-    assert items[0]["title"] == "AI提示词从入门到精通"
-    assert "xsec_token=ABf3nq5citPgrFD6iJUXbQOCgdXGJWD5CDoWhcM_nDeZA=" in items[0]["url"]
+    assert len(items) == 0  # Disabled for safety
 
 def test_extract_items_from_json_douyin():
     from scripts.fetcher import extract_items_from_json
