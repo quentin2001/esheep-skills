@@ -117,8 +117,8 @@ esheep-topic-master/
 │   └── test_topic_manager.py # TopicManager 单元测试
 ├── web/
 │   ├── index.html           # 看板页面结构
-│   ├── styles.css           # 看板样式与主题
-│   └── app.js               # 看板交互与 API 联动逻辑
+│   ├── server.cjs           # Node 服务器产物
+│   └── assets/              # 前端 JS & CSS 静态 Bundle 产物
 ├── pyproject.toml           # 项目元数据配置
 └── README.md                # 项目说明文档
 ```
