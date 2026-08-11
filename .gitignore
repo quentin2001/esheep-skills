@@ -4,6 +4,7 @@ __pycache__/
 .sessions/
 .superpowers/
 **/docs/superpowers/
+**/tests/
 data/
-tests/test_raw_favs.json
+
 
