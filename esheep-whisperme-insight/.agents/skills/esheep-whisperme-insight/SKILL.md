@@ -8,7 +8,7 @@ description: >-
   window for structured insight generation.
 metadata:
   author: quentin2001
-  version: "1.3.0"
+  version: "1.3.1"
   source: https://github.com/quentin2001/esheep-skills
 ---
 
@@ -44,7 +44,7 @@ metadata:
     │
     ▼
 [Step 1] ASR 方案配置 (云端 API vs 本地免费算力)
-    ├── 路径 A (云端 API): 提示发送 API Key（附简要常用示例分类说明）
+    ├── 路径 A (云端 API): 简明提示发送 API Key
     └── 路径 B (本地方案): 算力检测 → 推荐合适本地引擎或自动连已有的本地服务
     │
     ▼
@@ -93,8 +93,8 @@ ffmpeg -version
 
 ### 路径 A: 用户选择云端 API
 
-简明且带清晰示例说明的提示：
-> “好的，请发送您的云端语音识别 API 秘钥（支持 Groq / 智谱 / OpenAI 等兼容 Whisper 格式的 API Key）。收到后我将立即为您开始转录。”
+极简清晰提示：
+> “好的，请发送您的语音识别 API Key 即可。”
 
 后台运行转录命令：
 ```bash
@@ -146,6 +146,6 @@ filler_inline = re.compile(
 
 | 错误 | 正确做法 |
 |---|---|
-| 语气过于矫情或油腻（“小助手”、“我看您电脑...”） | 使用干练专业的询问：“检测到当前系统尚未配置 ffmpeg...是否允许我现在为您自动安装？” |
-| 要求用户提供 API Key 时没有任何上下文范围 | 给出简明清晰的常用兼容服务示例：“支持 Groq / 智谱 / OpenAI 等兼容 Whisper 格式的 API Key” |
-| 引导选项中抛出未解释的技术名词（“如 FunASR”） | 在初步选择选项中去掉不必要的技术名词，保持选项干净 |
+| 语气过于矫情或油腻 | 使用干练专业的询问：“检测到当前系统尚未配置 ffmpeg...是否允许我现在为您自动安装？” |
+| 要求用户提供 API Key 时啰嗦或误导 | 使用极其干练明确的请求：“好的，请发送您的语音识别 API Key 即可。” |
+| 引导选项中抛出未解释的技术名词（如 FunASR） | 在初步选择选项中去掉不必要的技术名词，保持选项干净 |
