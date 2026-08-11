@@ -7,7 +7,7 @@
 | Skill 名称 | 说明 | 模块路径 |
 |---|---|---|
 | 🎬 **esheep-media-downloader** | 社交媒体无水印音视频/封面极速下载工具 | [`esheep-media-downloader/`](./esheep-media-downloader) |
-| 🗃️ **esheep-social-favs-copilot** | 抖音、X、B站、知乎 个人收藏与点赞记录全量抓取与归档 | [`esheep-social-favs-copilot/`](./esheep-social-favs-copilot) |
+| 🗃️ **esheep-social-favs-copilot** | 抖音、X(Twitter) 个人收藏与点赞记录精准捕获与归档 | [`esheep-social-favs-copilot/`](./esheep-social-favs-copilot) |
 | 🗂️ **esheep-topic-master** | 自媒体爆款选题全生命周期看板与灵感文本化管理系统 | [`esheep-topic-master/`](./esheep-topic-master) |
 | 🎙️ **esheep-whisperme-insight** | 播客与音视频 ASR 云端转录 + Agent 上下文 AI 深度内容提炼 | [`esheep-whisperme-insight/`](./esheep-whisperme-insight) |
 
