@@ -1,10 +1,43 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.map
+
+# Testing, Superpowers & Verification
 .pytest_cache/
-.sessions/
+.coverage
+htmlcov/
+**/tests/
 .superpowers/
 **/docs/superpowers/
-**/tests/
-data/
 
+# User Sensitive Sessions & Playwright / Browser Cache
+.sessions/
+*.session
+*.log
+test_downloads/
 
+# Environment & Virtual Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Local Runtime Data
+**/data/*.json
+**/data/*.md
+**/data/*.png
+**/data/*.jpg
+**/data/*.log
+!**/data/.gitkeep
