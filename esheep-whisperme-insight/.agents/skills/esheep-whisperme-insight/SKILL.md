@@ -59,13 +59,24 @@ metadata:
 
 ## Step 0: Environment Setup (依赖自动代为执行)
 
-Agent 执行前优先检测环境：
-```bash
-ffmpeg -version
-```
-- 缺失 `ffmpeg` 时，Agent 干练询问：
-  > “检测到当前系统尚未配置 `ffmpeg`（解析音视频所必需的组件），是否允许我现在为您自动安装？”
-- 用户确认后，Agent 直接使用 `run_command` 执行安装（Windows: `winget install ffmpeg` / macOS: `brew install ffmpeg`）。
+Agent 执行前优先检测系统与 Python 环境：
+
+1. **音视频基础组件 (`ffmpeg`)**：
+   ```bash
+   ffmpeg -version
+   ```
+   - 缺失时，Agent 干练询问：
+     > “检测到当前系统尚未配置 `ffmpeg`（解析音视频所必需的组件），是否允许我现在为您自动安装？”
+   - 用户确认后，Agent 直接使用 `run_command` 执行安装（Windows: `winget install ffmpeg` / macOS: `brew install ffmpeg`）。
+
+2. **本地语音模型组件 (`funasr`, `modelscope`)**：
+   若用户选择本地免费模式，Agent 预先检测 Python 库：
+   ```bash
+   python -c "import funasr, modelscope; print('OK')"
+   ```
+   - 缺失时，Agent 干练询问：
+     > “首次在本地运行语音模型需要安装轻量组件（`funasr` 与 `modelscope`），是否允许我现在为您自动安装？”
+   - 用户确认后，Agent 直接执行 `pip install funasr modelscope`，完成后自动加载 220MB 模型至系统公用缓存目录（`~/.cache/modelscope`），无需用户手动配置路径。
 
 ## Step 1: Compute Routing & Solution Guidance (算力路由与方案引导)
 
