@@ -1,6 +1,6 @@
 # eSheep Skills (硅基电子羊 Agent Skill 集合)
 
-本仓库包含了 **eSheep (硅基电子羊)** 团队开发维护的一系列 Antigravity AI Agent Skills。每个 Skill 以独立模块的形式提供特定的自媒体、内容抓取、音视频分析与选题管理能力。
+本仓库包含了 **eSheep (硅基电子羊)** 团队开发维护的一系列通用 AI Agent Skills。每个 Skill 以标准化的独立模块形式提供特定的自媒体、内容抓取、音视频分析与选题管理能力，兼容各类主流 AI Coding Agent（如 Claude Code, Cursor, OpenCode, Antigravity 等）。
 
 ## 模块列表
 

@@ -1,6 +1,6 @@
 # eSheep whisperMe Insight (音视频 ASR 转录与 AI 深度分析 Skill)
 
-`esheep-whisperme-insight` 是从 [whisperMe](https://github.com/quentin2001/whisperMe) 提取并重构优化的工业级轻量 Antigravity Skill。
+`esheep-whisperme-insight` 是从 [whisperMe](https://github.com/quentin2001/whisperMe) 提取并重构优化的工业级轻量 AI Agent Skill。
 
 它将音视频 ASR 转录与 AI 深度分析解耦：默认内置 **SenseVoiceSmall（220MB 超轻量本地底座）**，支持云端 Whisper API 与三级全平台媒体抓取管道，AI 深度挖掘由 Agent 直接在对话上下文内 0 成本完成。
 
