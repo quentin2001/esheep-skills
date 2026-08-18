@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="eSheep Logo" width="120" />
+</p>
+
 # eSheep Skills (硅基电子羊 Agent Skill 集合)
 
 本仓库包含了 eSheep (硅基电子羊) 开发维护的一系列通用 AI Agent Skills。  
